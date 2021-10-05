@@ -1,0 +1,14 @@
+{
+    "repository": {
+        "name": "appmaker-calls",
+        "branch": "dev",
+        "manifest": "\/dist\/data\/manifest.json",
+        "host": {
+            "git": "git@github.com:LouisOuellet\/"
+        }
+    },
+    "name": "calls",
+    "status": false,
+    "build": 1,
+    "version": "21.10-dev"
+}
