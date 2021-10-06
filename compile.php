@@ -3,6 +3,7 @@ if(!is_dir(dirname(__FILE__) . '/dist')){ mkdir(dirname(__FILE__) . '/dist'); }
 if(!is_dir(dirname(__FILE__) . '/dist/data')){ mkdir(dirname(__FILE__) . '/dist/data'); }
 if(is_file(dirname(__FILE__) . '/dist/data/manifest.json')){
   $settings=json_decode(file_get_contents(dirname(__FILE__) . '/dist/data/manifest.json'),true);
+  $settings['repository']['branch'] = str_replace("\n",'',shell_exec("git rev-parse --abbrev-ref HEAD"));
   $settings['build'] = $settings['build']+1;
   $settings['version'] = date("y.m").'-'.$settings['repository']['branch'];
   $manifest = fopen(dirname(__FILE__) . '/dist/data/manifest.json', 'w');
