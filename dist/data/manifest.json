@@ -4,11 +4,12 @@
         "branch": "dev",
         "manifest": "\/dist\/data\/manifest.json",
         "host": {
-            "git": "git@github.com:LouisOuellet\/"
+            "git": "https:\/\/github.com\/LouisOuellet\/",
+            "raw": "https:\/\/raw.githubusercontent.com\/LouisOuellet\/"
         }
     },
     "name": "calls",
     "status": false,
-    "build": 1,
+    "build": 2,
     "version": "21.10-dev"
 }
