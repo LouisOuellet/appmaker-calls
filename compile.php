@@ -27,7 +27,7 @@ if(is_file(dirname(__FILE__) . '/dist/data/manifest.json')){
   fclose($gitignore);
   echo "Repository has been setup\n";
 }
-shell_exec("git add . && git commit -m 'UPDATE' && git push origin ".$settings['repository']['branch']);
+shell_exec("git add . && git commit -m '".$settings['version'].'-'.$settings['build']."' && git push origin ".$settings['repository']['branch']);
 echo "\n";
 echo "Version: ".$settings['version']."\n";
 echo "Build: ".$settings['build']."\n";
