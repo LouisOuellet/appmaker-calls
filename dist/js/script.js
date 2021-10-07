@@ -862,7 +862,6 @@ API.Plugins.calls = {
 						API.request('calls','end',{ data:callUpdate },function(result){
 							var data = JSON.parse(result);
 							console.log(data);
-							console.log(widgetCTN);
 							if(data.success != undefined){
 								// Update Call Window
 								if(callCTN.length > 0){
@@ -943,6 +942,7 @@ API.Plugins.calls = {
 									}
 								}
 								// Update Widget Window
+								console.log(widgetCTN);
 								if(widgetCTN.length > 0){widgetCTN.remove();}
 								if(callback != null){ callback({call:call,issues:issues,organization:organization},{callCTN:callCTN,organizationCTN:organizationCTN,trCTN:trCTN,widgetCTN:widgetCTN}); }
 							}
