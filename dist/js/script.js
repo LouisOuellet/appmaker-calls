@@ -864,6 +864,7 @@ API.Plugins.calls = {
 							console.log(data);
 							if(data.success != undefined){
 								// Update Call Window
+								console.log(callCTN);
 								if(callCTN.length > 0){
 									// Adding Call Status to Timeline
 									API.Builder.Timeline.add.status(callCTN.find('#calls_timeline'),data.output.status);
@@ -888,6 +889,7 @@ API.Plugins.calls = {
 									}
 								}
 								// Update Organization Window
+								console.log(organizationCTN);
 								if(organizationCTN.length > 0){
 									// Update Call Table
 									if(trCTN.length > 0){
