@@ -861,6 +861,8 @@ API.Plugins.calls = {
 						callUpdate.form = form;
 						API.request('calls','end',{ data:callUpdate },function(result){
 							var data = JSON.parse(result);
+							console.log(result);
+							console.log(data);
 							if(data.success != undefined){
 								// Update Call Window
 								if(callCTN.length > 0){
