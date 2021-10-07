@@ -892,11 +892,13 @@ API.Plugins.calls = {
 								console.log(organizationCTN);
 								if(organizationCTN.length > 0){
 									// Update Call Table
+									console.log(trCTN);
 									if(trCTN.length > 0){
 										trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
 									}
 									// Adding Call Status to Timeline
 									data.output.results.created = data.output.raw.modified;
+									console.log(data.output.results.created);
 									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.results,'phone-square','olive',function(item){
 										item.find('i').first().addClass('pointer');
 										item.find('i').first().off().click(function(){
@@ -904,6 +906,7 @@ API.Plugins.calls = {
 										});
 									});
 									// Adding Note
+									console.log('Adding Note');
 									if(API.Auth.validate('custom', 'organizations_notes', 1)){
 										if(API.Helper.isSet(data,['output','note','dom'])){
 											API.Builder.Timeline.add.card(organizationCTN.find('#organizations_timeline'),data.output.note.dom,'sticky-note','warning',function(item){
@@ -912,16 +915,19 @@ API.Plugins.calls = {
 										}
 									}
 									// Update controls
+									console.log('Update controls');
 									if(((API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Auth.Options.application.showInlineCallsControls.value))||((!API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Settings.customization.showInlineCallsControls.value))){
 										organizationCTN.find('[data-id][data-type="calls"]').find('td[data-showInlineCallsControls]').off();
 										API.Plugins.organizations.Events.calls(organizationCTN,organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]'),call,organization,issues);
 										organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]').find('button[data-action="end"]').parent().hide();
 									}
 									// Adding new Callback
+									console.log('Adding new Callback');
 									if(API.Helper.isSet(data.output,['new'])){
 										API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.results,raw:data.output.new.output.raw},organization,issues, true);
 									}
 									// Adding Issues
+									console.log('Adding Issues');
 									if(API.Helper.isSet(data.output,['issues'])){
 										for(var [issueID, issue] of Object.entries(data.output.issues)){
 											issue.created = data.output.note.dom.created;
@@ -930,6 +936,7 @@ API.Plugins.calls = {
 										}
 									}
 									// Adding Services
+									console.log('Adding Services');
 									if(API.Helper.isSet(data.output,['issues'])){
 										for(var [serviceID, service] of Object.entries(data.output.services)){
 											service.created = data.output.note.dom.created;
