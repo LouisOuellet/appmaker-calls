@@ -47,15 +47,12 @@ class Compiler {
       if(isset($this->Connection,$this->Database,$this->Manifest['table']) && !empty($this->Manifest['table']) && !empty($this->Settings)){
         $structure = $this->createStructure(dirname(__FILE__).'/dist/data/structure.json',$this->Manifest['table']);
         if(!isset($structure['error'])){
-          echo "\n";
           echo "The database structure file was created\n";
           $records = $this->createRecords(dirname(__FILE__).'/dist/data/skeleton.json',["tables" => $this->Manifest['table'], "maxID" => 99999]);
           if(!isset($records['error'])){
-            echo "\n";
             echo "The database skeleton file was created\n";
             $records = $this->createRecords(dirname(__FILE__).'/dist/data/sample.json',["tables" => $this->Manifest['table']]);
             if(!isset($records['error'])){
-              echo "\n";
               echo "The database sample file was created\n";
             } else {
               echo "\n";
@@ -70,7 +67,7 @@ class Compiler {
           echo $structure['error']."\n";
         }
       }
-      shell_exec("git add . && git commit -m '".$this->Manifest['version'].'-'.$this->Manifest['build']."' && git push origin ".$this->Manifest['repository']['branch']);
+      shell_exec("git add . && git commit -m '".$this->Manifest['version'].'-'.$this->Manifest['build']."' && git push origin ".$this->Manifest['repository']['branch']." > /dev/null");
       echo "\n";
       echo "Version: ".$this->Manifest['version']."\n";
       echo "Build: ".$this->Manifest['build']."\n";
