@@ -48,6 +48,9 @@ class Compiler {
         $structure = $this->createStructure(dirname(__FILE__).'/dist/data/structure.json',$this->Manifest['table']);
         if(!isset($structure['error'])){
           echo "The database structure file was created\n";
+          if(isset($this->Manifest['requirements']['table'])){
+            $this->Manifest['table'] = array_merge($this->Manifest['table'],$this->Manifest['requirements']['table']);
+          }
           $records = $this->createRecords(dirname(__FILE__).'/dist/data/skeleton.json',["tables" => $this->Manifest['table'], "maxID" => 99999]);
           if(!isset($records['error'])){
             echo "The database skeleton file was created\n";
