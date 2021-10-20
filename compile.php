@@ -67,7 +67,8 @@ class Compiler {
           echo $structure['error']."\n";
         }
       }
-      shell_exec("git add . && git commit -m '".$this->Manifest['version'].'-'.$this->Manifest['build']."' && git push origin ".$this->Manifest['repository']['branch']." > /dev/null");
+      shell_exec("git add . && git commit -m '".$this->Manifest['version'].'-'.$this->Manifest['build']."' && git push origin ".$this->Manifest['repository']['branch']." 2>&1 > /dev/null");
+      echo "Repository updated\n";
       echo "\n";
       echo "Version: ".$this->Manifest['version']."\n";
       echo "Build: ".$this->Manifest['build']."\n";
