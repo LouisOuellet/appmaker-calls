@@ -4,6 +4,7 @@ class Compiler {
 
   protected $Manifest = [];
   protected $Settings = [];
+  protected $GitIgnore = ["settings.json",".DS_Store","*.DS_Store"];
   protected $Database;
   protected $Connection;
 	protected $Query;
@@ -24,13 +25,12 @@ class Compiler {
       $manifest = fopen(dirname(__FILE__) . '/dist/data/manifest.json', 'w');
       fwrite($manifest, json_encode($settings, JSON_PRETTY_PRINT));
       fclose($manifest);
-      $gitignore = fopen(dirname(__FILE__) . '/.gitignore', 'w');
-      fwrite($gitignore, "settings.json\n.DS_Store\n*.DS_Store\n");
-      fclose($gitignore);
+      $this->buildGitIgnore();
       echo "Repository has been setup\n";
       $this->Manifest = $settings;
     } else {
       $this->Manifest=json_decode(file_get_contents(dirname(__FILE__) . '/dist/data/manifest.json'),true);
+      $this->buildGitIgnore();
     }
     if(is_file(dirname(__FILE__) . '/settings.json')){ $this->Settings=json_decode(file_get_contents(dirname(__FILE__) . '/settings.json'),true); }
     if(isset($this->Manifest['table'])){ $this->configDB(); }
@@ -57,6 +57,28 @@ class Compiler {
       echo "Published on ".$this->Manifest['repository']['host']['git'].$this->Manifest['repository']['name'].".git\n";
     } else {
       echo "Unable to compile, no manifest found!\n";
+    }
+  }
+
+  private function buildGitIgnore(){
+    if(is_file(dirname(__FILE__) . '/.gitignore')){
+      foreach(explode("\n",file_get_contents(dirname(__FILE__) . '/.gitignore')) as $line){
+        echo "[line]".$line."\n";
+        if(!in_array($line, $this->GitIgnore) && $line != ''){
+          echo "Adding [".$line."]\n";
+          file_put_contents(dirname(__FILE__) . '/.gitignore', $line.PHP_EOL , FILE_APPEND | LOCK_EX);
+        } else {
+          $key = array_search($line, $this->GitIgnore);
+          if($key !== false){ unset($this->GitIgnore[$key]); }
+        }
+      }
+    }
+    foreach($this->GitIgnore as $line){
+      echo "[line]".$line."\n";
+      if($line != ''){
+        echo "Adding [".$line."]\n";
+        file_put_contents(dirname(__FILE__) . '/.gitignore', $line.PHP_EOL , FILE_APPEND | LOCK_EX);
+      }
     }
   }
 
