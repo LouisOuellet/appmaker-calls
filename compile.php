@@ -45,7 +45,7 @@ class Compiler {
       fwrite($manifest, json_encode($this->Manifest, JSON_PRETTY_PRINT));
       fclose($manifest);
       if(isset($this->Connection,$this->Database,$this->Manifest['table']) && !empty($this->Manifest['table']) && !empty($this->Settings)){
-        $structure = $this->createStructure(dirname(__FILE__).'/dist/data/structure.json');
+        $structure = $this->createStructure(dirname(__FILE__).'/dist/data/structure.json',$this->Manifest['table']);
         if(!isset($structure['error'])){
           echo "\n";
           echo "The database structure file was created\n";
@@ -103,9 +103,9 @@ class Compiler {
 
   private function configDB() {
     if(isset($this->Settings['sql']['host'],$this->Settings['sql']['database'],$this->Settings['sql']['username'],$this->Settings['sql']['password'])){
-      // error_reporting(0);
+      error_reporting(0);
       $this->Connection = new mysqli($this->Settings['sql']['host'], $this->Settings['sql']['username'], $this->Settings['sql']['password'], $this->Settings['sql']['database']);
-      // error_reporting(-1);
+      error_reporting(-1);
   		if($this->Connection->connect_error){
   			unset($this->Connection);
         unset($this->Database);
@@ -277,29 +277,27 @@ class Compiler {
 	}
 
 	private function createRecords($file, $options = []){
-		if($this->Status){
-			$SQLoptions = '';
-			$SQLargs = [];
-			if(!isset($options['tables'])){ $tables = $this->getTables($this->Database); } else { $tables = $options['tables']; }
-			if((isset($options['maxID']))||(isset($options['minID']))){
-				if($SQLoptions == ''){ $SQLoptions .= ' WHERE'; }
-				if(isset($options['maxID'])){ $SQLoptions .= ' id <= ?'; array_push($SQLargs,$options['maxID']); }
-				if(isset($options['minID'])){ $SQLoptions .= ' id >= ?'; array_push($SQLargs,$options['minID']); }
-			}
-			foreach($tables as $table){
-				if(!empty($SQLargs)){ $results = $this->Query('SELECT * FROM `'.$table.'`'.$SQLoptions,$SQLargs); }
-				else { $results = $this->Query('SELECT * FROM `'.$table.'`'); }
-				if($results != null){ $records[$table] = $results->fetchAll(); }
-			}
-			if(isset($records)){
-				if(($file != null)&&((is_writable($file))||(!is_file($file)))){
-					$json = fopen($file, 'w');
-					fwrite($json, json_encode($records, JSON_PRETTY_PRINT));
-					fclose($json);
-					return $records;
-				} else { return ["error" => "Unable to write in ".$file,"records" => $records]; }
-			} else { return ["error" => "No records found"]; }
+		$SQLoptions = '';
+		$SQLargs = [];
+		if(!isset($options['tables'])){ $tables = $this->getTables($this->Database); } else { $tables = $options['tables']; }
+		if((isset($options['maxID']))||(isset($options['minID']))){
+			if($SQLoptions == ''){ $SQLoptions .= ' WHERE'; }
+			if(isset($options['maxID'])){ $SQLoptions .= ' id <= ?'; array_push($SQLargs,$options['maxID']); }
+			if(isset($options['minID'])){ $SQLoptions .= ' id >= ?'; array_push($SQLargs,$options['minID']); }
 		}
+		foreach($tables as $table){
+			if(!empty($SQLargs)){ $results = $this->Query('SELECT * FROM `'.$table.'`'.$SQLoptions,$SQLargs); }
+			else { $results = $this->Query('SELECT * FROM `'.$table.'`'); }
+			if($results != null){ $records[$table] = $results->fetchAll(); }
+		}
+		if(isset($records)){
+			if(($file != null)&&((is_writable($file))||(!is_file($file)))){
+				$json = fopen($file, 'w');
+				fwrite($json, json_encode($records, JSON_PRETTY_PRINT));
+				fclose($json);
+				return $records;
+			} else { return ["error" => "Unable to write in ".$file,"records" => $records]; }
+		} else { return ["error" => "No records found"]; }
 	}
 }
 
