@@ -103,7 +103,9 @@ class Compiler {
 
   private function configDB() {
     if(isset($this->Settings['sql']['host'],$this->Settings['sql']['database'],$this->Settings['sql']['username'],$this->Settings['sql']['password'])){
+      error_reporting(0);
       $this->Connection = new mysqli($this->Settings['sql']['host'], $this->Settings['sql']['username'], $this->Settings['sql']['password'], $this->Settings['sql']['database']);
+      error_reporting(-1);
   		if($this->Connection->connect_error){
   			unset($this->Connection);
         unset($this->Database);
