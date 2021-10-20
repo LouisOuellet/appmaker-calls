@@ -45,9 +45,30 @@ class Compiler {
       fwrite($manifest, json_encode($this->Manifest, JSON_PRETTY_PRINT));
       fclose($manifest);
       if(isset($this->Connection,$this->Database,$this->Manifest['table']) && !empty($this->Manifest['table']) && !empty($this->Settings)){
-        $this->createStructure(dirname(__FILE__).'/dist/data/structure.json');
-        $this->createRecords(dirname(__FILE__).'/dist/data/skeleton.json',["tables" => $this->Manifest['table'], "maxID" => 99999]);
-        $this->createRecords(dirname(__FILE__).'/dist/data/sample.json',["tables" => $this->Manifest['table']]);
+        $structure = $this->createStructure(dirname(__FILE__).'/dist/data/structure.json');
+        if(!isset($structure['error'])){
+          echo "\n";
+          echo "The database structure file was created\n";
+          $records = $this->createRecords(dirname(__FILE__).'/dist/data/skeleton.json',["tables" => $this->Manifest['table'], "maxID" => 99999]);
+          if(!isset($records['error'])){
+            echo "\n";
+            echo "The database skeleton file was created\n";
+            $records = $this->createRecords(dirname(__FILE__).'/dist/data/sample.json',["tables" => $this->Manifest['table']]);
+            if(!isset($records['error'])){
+              echo "\n";
+              echo "The database sample file was created\n";
+            } else {
+              echo "\n";
+              echo $records['error']."\n";
+            }
+          } else {
+            echo "\n";
+            echo $records['error']."\n";
+          }
+        } else {
+          echo "\n";
+          echo $structure['error']."\n";
+        }
       }
       shell_exec("git add . && git commit -m '".$this->Manifest['version'].'-'.$this->Manifest['build']."' && git push origin ".$this->Manifest['repository']['branch']);
       echo "\n";
@@ -273,7 +294,7 @@ class Compiler {
 					$json = fopen($file, 'w');
 					fwrite($json, json_encode($records, JSON_PRETTY_PRINT));
 					fclose($json);
-					return ["success" => $file." successfully created","records" => $records];
+					return $records;
 				} else { return ["error" => "Unable to write in ".$file,"records" => $records]; }
 			} else { return ["error" => "No records found"]; }
 		}
