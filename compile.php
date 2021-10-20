@@ -63,9 +63,8 @@ class Compiler {
   private function buildGitIgnore(){
     if(is_file(dirname(__FILE__) . '/.gitignore')){
       foreach(explode("\n",file_get_contents(dirname(__FILE__) . '/.gitignore')) as $line){
-        echo "[line]".$line."\n";
         if(!in_array($line, $this->GitIgnore) && $line != ''){
-          echo "Adding [".$line."]\n";
+          echo "Adding [".$line."] to .gitignore\n";
           file_put_contents(dirname(__FILE__) . '/.gitignore', $line.PHP_EOL , FILE_APPEND | LOCK_EX);
         } else {
           $key = array_search($line, $this->GitIgnore);
@@ -74,9 +73,8 @@ class Compiler {
       }
     }
     foreach($this->GitIgnore as $line){
-      echo "[line]".$line."\n";
       if($line != ''){
-        echo "Adding [".$line."]\n";
+        echo "Adding [".$line."] to .gitignore\n";
         file_put_contents(dirname(__FILE__) . '/.gitignore', $line.PHP_EOL , FILE_APPEND | LOCK_EX);
       }
     }
