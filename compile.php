@@ -177,7 +177,7 @@ class Compiler {
 		return $result;
 	}
 
-	private function error($error) { return json_encode($error, JSON_PRETTY_PRINT); }
+	private function error($error) { echo $error; }
 
 	private function close() {
 		return $this->Connection->close();
