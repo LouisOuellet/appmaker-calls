@@ -408,6 +408,7 @@ class callsAPI extends CRUDAPI {
 			if(isset($data['time'])){ $data['time'] = date_format(date_create($data['time']),"H:i:s"); }
 			$data['organization'] = $data['link_to'];
 			$results = parent::create($request, $data);
+			var_dump($results);
 			if((isset($results['success'],$results['output']['raw']['assigned_to']))&&($results['output']['raw']['assigned_to'] != '')){
 				parent::create('notifications',[
 					'icon' => 'icon icon-calls mr-2',
