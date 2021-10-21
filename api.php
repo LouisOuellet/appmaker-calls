@@ -82,7 +82,7 @@ class callsAPI extends CRUDAPI {
 				if(isset($data['status'],$data['status'])){ $call['status'] = $data['status']; }
 				$return = parent::update($request, $call);
 				// Get Status
-				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `type` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
+				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
 				// Create Call Status
 				$this->Auth->create('relationships',[
 					'relationship_1' => 'organizations',
@@ -117,7 +117,7 @@ class callsAPI extends CRUDAPI {
 				// Update Current Call
 				$return = parent::update($request, $call);
 				// Get Status
-				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `type` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
+				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
 				$this->Auth->create('relationships',[
 					'relationship_1' => 'organizations',
 					'link_to_1' => $organizationID,
@@ -148,7 +148,7 @@ class callsAPI extends CRUDAPI {
 				// Update Issues
 				if(isset($data['form']['issues'])){
 					foreach($data['form']['issues'] as $issueID => $issueStatus){
-						$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `type` = ? AND `order` = ?','issues',$issueStatus)->fetchAll()->all()[0];
+						$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','issues',$issueStatus)->fetchAll()->all()[0];
 						if($status['id'] != $issues[$issueID]){
 							// Update Issue Status of Call
 							$this->Auth->create('relationships',[
@@ -279,7 +279,7 @@ class callsAPI extends CRUDAPI {
 				$return = parent::update($request, $data);
 				$return['output']['new'] = $newcall;
 				if(isset($return['success'],$data['note'])){
-					$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `type` = ? AND `order` = ?','calls',$data['status'])->fetchAll()->all()[0];
+					$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$data['status'])->fetchAll()->all()[0];
 					if(isset($data['note'])){
 						$note = [
 							'by' => $this->Auth->User['id'],
@@ -323,7 +323,7 @@ class callsAPI extends CRUDAPI {
 			$data['status'] = 6;
 			$call = parent::update($request, $data);
 			if(isset($call['success'],$data['note'])){
-				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `type` = ? AND `order` = ?','calls',$data['status'])->fetchAll()->all()[0];
+				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$data['status'])->fetchAll()->all()[0];
 				$note = [
 					'by' => $this->Auth->User['id'],
 					'content' => $data['note'],
@@ -408,7 +408,6 @@ class callsAPI extends CRUDAPI {
 			if(isset($data['time'])){ $data['time'] = date_format(date_create($data['time']),"H:i:s"); }
 			$data['organization'] = $data['link_to'];
 			$results = parent::create($request, $data);
-			var_dump($results);
 			if((isset($results['success'],$results['output']['raw']['assigned_to']))&&($results['output']['raw']['assigned_to'] != '')){
 				parent::create('notifications',[
 					'icon' => 'icon icon-calls mr-2',
@@ -417,7 +416,7 @@ class callsAPI extends CRUDAPI {
 					'user' => $results['output']['raw']['assigned_to'],
 					'href' => '?p=calls&v=details&id='.$results['output']['raw']['id'],
 				]);
-				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `type` = ? AND `order` = ?','calls',$data['status'])->fetchAll()->all()[0];
+				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$data['status'])->fetchAll()->all()[0];
 				$id = $this->Auth->create('relationships',[
 					'relationship_1' => $data['relationship'],
 					'link_to_1' => $data['link_to'],
