@@ -1,7 +1,7 @@
 {
     "repository": {
         "name": "appmaker-calls",
-        "branch": "dev",
+        "branch": "pre-release",
         "manifest": "\/dist\/data\/manifest.json",
         "host": {
             "git": "https:\/\/github.com\/LouisOuellet\/",
@@ -12,6 +12,6 @@
         "calls"
     ],
     "name": "calls",
-    "build": 45,
-    "version": "21.10-dev"
+    "build": 46,
+    "version": "21.10-pre-release"
 }
