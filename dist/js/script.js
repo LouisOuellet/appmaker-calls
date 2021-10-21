@@ -34,9 +34,9 @@ API.Plugins.calls = {
 				},function(result) {
 					var dataset = JSON.parse(result);
 					if(dataset.success != undefined){
-						for(const [key, value] of Object.entries(dataset.output.results)){ API.Helper.set(API.Contents,['data','dom','calls',value.id],value); }
+						for(const [key, value] of Object.entries(dataset.output.dom)){ API.Helper.set(API.Contents,['data','dom','calls',value.id],value); }
 						for(const [key, value] of Object.entries(dataset.output.raw)){ API.Helper.set(API.Contents,['data','raw','calls',value.id],value); }
-						API.Builder.table(card.children('.card-body'), dataset.output.results, {
+						API.Builder.table(card.children('.card-body'), dataset.output.dom, {
 							headers:dataset.output.headers,
 							id:'CallsIndex',
 							modal:true,
@@ -401,11 +401,11 @@ API.Plugins.calls = {
 							trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
 							trCTN.parents().eq(4).find('#organizations_calls div table tbody').append(trCTN);
 						}
-						data.output.results.created = data.output.raw.modified;
-						API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.results,'phone-square','olive',function(item){
+						data.output.dom.created = data.output.raw.modified;
+						API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
 							item.find('i').first().addClass('pointer');
 							item.find('i').first().off().click(function(){
-								API.CRUD.read.show({ key:{id:data.output.results.id}, title:data.output.results.phone, href:"?p=calls&v=details&id="+data.output.results.id, modal:true });
+								API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
 							});
 						});
 						// Update controls
@@ -478,11 +478,11 @@ API.Plugins.calls = {
 										trCTN.parents().eq(4).find('#organizations_calls div table tbody').append(trCTN);
 									}
 									// Adding Call Status to Timeline
-									data.output.results.created = data.output.raw.modified;
-									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.results,'phone-square','olive',function(item){
+									data.output.dom.created = data.output.raw.modified;
+									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
 										item.find('i').first().addClass('pointer');
 										item.find('i').first().off().click(function(){
-											API.CRUD.read.show({ key:{id:data.output.results.id}, title:data.output.results.phone, href:"?p=calls&v=details&id="+data.output.results.id, modal:true });
+											API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
 										});
 									});
 									// Adding Note
@@ -586,11 +586,11 @@ API.Plugins.calls = {
 										trCTN.parents().eq(4).find('#organizations_calls div table tbody').append(trCTN);
 									}
 									// Adding Call Status to Timeline
-									data.output.results.created = data.output.raw.modified;
-									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.results,'phone-square','olive',function(item){
+									data.output.dom.created = data.output.raw.modified;
+									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
 										item.find('i').first().addClass('pointer');
 										item.find('i').first().off().click(function(){
-											API.CRUD.read.show({ key:{id:data.output.results.id}, title:data.output.results.phone, href:"?p=calls&v=details&id="+data.output.results.id, modal:true });
+											API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
 										});
 									});
 									// Adding Note
@@ -609,7 +609,7 @@ API.Plugins.calls = {
 									}
 									// Adding new Callback
 									if(API.Helper.isSet(data.output,['new'])){
-										API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.results,raw:data.output.new.output.raw},organization,issues, true);
+										API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.dom,raw:data.output.new.output.raw},organization,issues, true);
 									}
 								}
 								if(callback != null){ callback({call:call,issues:issues,organization:organization},{callCTN:callCTN,organizationCTN:organizationCTN,trCTN:trCTN,widgetCTN:widgetCTN}); }
@@ -776,11 +776,11 @@ API.Plugins.calls = {
 													trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
 												}
 												// Adding Call Status to Timeline
-												data.output.results.created = data.output.raw.modified;
-												API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.results,'phone-square','olive',function(item){
+												data.output.dom.created = data.output.raw.modified;
+												API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
 													item.find('i').first().addClass('pointer');
 													item.find('i').first().off().click(function(){
-														API.CRUD.read.show({ key:{id:data.output.results.id}, title:data.output.results.phone, href:"?p=calls&v=details&id="+data.output.results.id, modal:true });
+														API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
 													});
 												});
 												// Adding Note
@@ -799,7 +799,7 @@ API.Plugins.calls = {
 												}
 												// Adding new Callback
 												if(API.Helper.isSet(data.output,['new'])){
-													API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.results,raw:data.output.new.output.raw},organization,issues, true);
+													API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.dom,raw:data.output.new.output.raw},organization,issues, true);
 												}
 												// Adding Issues
 												if(API.Helper.isSet(data.output,['issues'])){
@@ -893,11 +893,11 @@ API.Plugins.calls = {
 										trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
 									}
 									// Adding Call Status to Timeline
-									data.output.results.created = data.output.raw.modified;
-									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.results,'phone-square','olive',function(item){
+									data.output.dom.created = data.output.raw.modified;
+									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
 										item.find('i').first().addClass('pointer');
 										item.find('i').first().off().click(function(){
-											API.CRUD.read.show({ key:{id:data.output.results.id}, title:data.output.results.phone, href:"?p=calls&v=details&id="+data.output.results.id, modal:true });
+											API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
 										});
 									});
 									// Adding Note
@@ -916,7 +916,7 @@ API.Plugins.calls = {
 									}
 									// Adding new Callback
 									if(API.Helper.isSet(data.output,['new'])){
-										API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.results,raw:data.output.new.output.raw},organization,issues, true);
+										API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.dom,raw:data.output.new.output.raw},organization,issues, true);
 									}
 									// Adding Issues
 									if(API.Helper.isSet(data.output,['issues'])){
