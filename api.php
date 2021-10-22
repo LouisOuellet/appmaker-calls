@@ -84,7 +84,7 @@ class callsAPI extends CRUDAPI {
 				// Get Status
 				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
 				// Create Call Status
-				$this->Auth->create('relationships',[
+				$this->createRelationship([
 					'relationship_1' => 'organizations',
 					'link_to_1' => $call['organization'],
 					'relationship_2' => $request,
@@ -118,7 +118,7 @@ class callsAPI extends CRUDAPI {
 				$return = parent::update($request, $call);
 				// Get Status
 				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
-				$this->Auth->create('relationships',[
+				$this->createRelationship([
 					'relationship_1' => 'organizations',
 					'link_to_1' => $organizationID,
 					'relationship_2' => $request,
@@ -151,7 +151,7 @@ class callsAPI extends CRUDAPI {
 						$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','issues',$issueStatus)->fetchAll()->all()[0];
 						if($status['id'] != $issues[$issueID]){
 							// Update Issue Status of Call
-							$this->Auth->create('relationships',[
+							$this->createRelationship([
 								'relationship_1' => 'issues',
 								'link_to_1' => $issueID,
 								'relationship_2' => 'calls',
@@ -164,7 +164,7 @@ class callsAPI extends CRUDAPI {
 							$return['output']['issues'][$issueID]['status'] = $status;
 							// Update Issue Status of Organization
 							if((isset($organizationID))&&($status['id'] != $organizationIssues[$issueID])){
-								$this->Auth->create('relationships',[
+								$this->createRelationship([
 									'relationship_1' => 'issues',
 									'link_to_1' => $issueID,
 									'relationship_2' => 'organizations',
@@ -180,7 +180,7 @@ class callsAPI extends CRUDAPI {
 									foreach($relationships as $relationship){
 										if(($relationship['relationship'] == 'services')){
 											// Adding new Service to Call
-											$this->Auth->create('relationships',[
+											$this->createRelationship([
 												'relationship_1' => 'calls',
 												'link_to_1' => $call['id'],
 												'relationship_2' => 'services',
@@ -188,7 +188,7 @@ class callsAPI extends CRUDAPI {
 											]);
 											// Adding new Service to Organization
 											if((isset($organizationID))&&(!in_array($relationship['link_to'],$services))){
-												$this->Auth->create('relationships',[
+												$this->createRelationship([
 													'relationship_1' => 'organizations',
 													'link_to_1' => $organizationID,
 													'relationship_2' => 'services',
@@ -229,14 +229,14 @@ class callsAPI extends CRUDAPI {
 					$return['output']['new'] = $this->create($request, $call);
 				}
 				// Create Relationships
-				$this->Auth->create('relationships',[
+				$this->createRelationship([
 					'relationship_1' => $request,
 					'link_to_1' => $data['id'],
 					'relationship_2' => 'notes',
 					'link_to_2' => $noteID,
 				]);
 				if(isset($organizationID)){
-					$this->Auth->create('relationships',[
+					$this->createRelationship([
 						'relationship_1' => 'organizations',
 						'link_to_1' => $organizationID,
 						'relationship_2' => 'notes',
@@ -288,20 +288,20 @@ class callsAPI extends CRUDAPI {
 						$noteID = $this->Auth->create('notes',$note);
 						$return['output']['note']['raw'] = $this->Auth->read('notes',$noteID)->all()[0];
 						$return['output']['note']['dom'] = $this->convertToDOM($return['output']['note']['raw']);
-						$this->Auth->create('relationships',[
+						$this->createRelationship([
 							'relationship_1' => $request,
 							'link_to_1' => $data['id'],
 							'relationship_2' => 'notes',
 							'link_to_2' => $noteID,
 						]);
-						$this->Auth->create('relationships',[
+						$this->createRelationship([
 							'relationship_1' => 'organizations',
 							'link_to_1' => $organizationID,
 							'relationship_2' => 'notes',
 							'link_to_2' => $noteID,
 						]);
 					}
-					$this->Auth->create('relationships',[
+					$this->createRelationship([
 						'relationship_1' => 'organizations',
 						'link_to_1' => $organizationID,
 						'relationship_2' => $request,
@@ -331,7 +331,7 @@ class callsAPI extends CRUDAPI {
 				$noteID = $this->Auth->create('notes',$note);
 				$call['output']['note']['raw'] = $this->Auth->read('notes',$noteID)->all()[0];
 				$call['output']['note']['dom'] = $this->convertToDOM($call['output']['note']['raw']);
-				$this->Auth->create('relationships',[
+				$this->createRelationship([
 					'relationship_1' => $request,
 					'link_to_1' => $data['id'],
 					'relationship_2' => 'notes',
@@ -341,13 +341,13 @@ class callsAPI extends CRUDAPI {
 				foreach($callRelationships as $id => $relationships){
 					foreach($relationships as $relationship){
 						if($relationship['relationship'] == 'organizations'){
-							$this->Auth->create('relationships',[
+							$this->createRelationship([
 								'relationship_1' => $relationship['relationship'],
 								'link_to_1' => $relationship['link_to'],
 								'relationship_2' => 'notes',
 								'link_to_2' => $noteID,
 							]);
-							$this->Auth->create('relationships',[
+							$this->createRelationship([
 								'relationship_1' => $relationship['relationship'],
 								'link_to_1' => $relationship['link_to'],
 								'relationship_2' => $request,
@@ -373,7 +373,7 @@ class callsAPI extends CRUDAPI {
 				foreach($note['output']['relationships'] as $id => $relationships){
 					foreach($relationships as $relationship){
 						if($relationship['relationship'] == 'organizations'){
-							$this->Auth->create('relationships',[
+							$this->createRelationship([
 								'relationship_1' => $relationship['relationship'],
 								'link_to_1' => $relationship['link_to'],
 								'relationship_2' => 'notes',
@@ -417,7 +417,7 @@ class callsAPI extends CRUDAPI {
 					'href' => '?p=calls&v=details&id='.$results['output']['raw']['id'],
 				]);
 				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$data['status'])->fetchAll()->all()[0];
-				$id = $this->Auth->create('relationships',[
+				$results['output']['relationship']['raw'] = $this->createRelationship([
 					'relationship_1' => $data['relationship'],
 					'link_to_1' => $data['link_to'],
 					'relationship_2' => 'calls',
@@ -425,17 +425,14 @@ class callsAPI extends CRUDAPI {
 					'relationship_3' => 'statuses',
 					'link_to_3' => $status['id'],
 				]);
-				$this->Auth->create('relationships',[
+				$results['output']['relationship']['dom'] = $this->convertToDOM($results['output']['relationship']['raw']);
+				$this->createRelationship([
 					'relationship_1' => 'calls',
 					'link_to_1' => $results['output']['raw']['id'],
 					'relationship_2' => 'statuses',
 					'link_to_2' => $status['id'],
 				]);
-				if(is_int($id)){
-					$results['output']['relationship']['raw'] = $this->Auth->read('relationships',$id)->all()[0];
-					$results['output']['relationship']['dom'] = $this->convertToDOM($results['output']['relationship']['raw']);
-				}
-				$id = $this->Auth->create('relationships',[
+				$this->createRelationship([
 					'relationship_1' => 'users',
 					'link_to_1' => $results['output']['raw']['assigned_to'],
 					'relationship_2' => 'calls',
@@ -449,7 +446,7 @@ class callsAPI extends CRUDAPI {
 					}
 				}
 				foreach($issues as $issueID => $issueStatus){
-					$this->Auth->create('relationships',[
+					$this->createRelationship([
 						'relationship_1' => 'issues',
 						'link_to_1' => $issueID,
 						'relationship_2' => 'calls',
@@ -459,7 +456,7 @@ class callsAPI extends CRUDAPI {
 					]);
 				}
 				if((isset($results['output']['raw']['contact']))&&($results['output']['raw']['contact'] != '')&&($results['output']['raw']['contact'] != null)){
-					$id = $this->Auth->create('relationships',[
+					$this->createRelationship([
 						'relationship_1' => 'users',
 						'link_to_1' => $results['output']['raw']['contact'],
 						'relationship_2' => 'calls',
