@@ -810,7 +810,7 @@ API.Plugins.calls = {
 													}
 												}
 												// Adding Services
-												if(API.Helper.isSet(data.output,['issues'])){
+												if(API.Helper.isSet(data.output,['services'])){
 													for(var [serviceID, service] of Object.entries(data.output.services)){
 														service.created = data.output.note.dom.created;
 														API.Builder.Timeline.add.service(organizationCTN.find('#organizations_timeline'),service);
