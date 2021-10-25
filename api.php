@@ -116,6 +116,7 @@ class callsAPI extends CRUDAPI {
 				if(isset($data['form']['date'],$data['form']['time'])){ $call['status'] = 4; } else { $call['status'] = 5; }
 				// Update Current Call
 				$return = parent::update($request, $call);
+				$return['data'] = $data;
 				// Get Status
 				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
 				$this->createRelationship([
