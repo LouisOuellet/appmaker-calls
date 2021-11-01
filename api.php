@@ -434,7 +434,7 @@ class callsAPI extends CRUDAPI {
 					'link_to_2' => $status['id'],
 				]);
 				$this->createRelationship([
-					'relationship_1' => 'contacts',
+					'relationship_1' => 'users',
 					'link_to_1' => $results['output']['raw']['assigned_to'],
 					'relationship_2' => 'calls',
 					'link_to_2' => $results['output']['raw']['id'],
@@ -458,7 +458,7 @@ class callsAPI extends CRUDAPI {
 				}
 				if((isset($results['output']['raw']['contact']))&&($results['output']['raw']['contact'] != '')&&($results['output']['raw']['contact'] != null)){
 					$this->createRelationship([
-						'relationship_1' => 'users',
+						'relationship_1' => 'contacts',
 						'link_to_1' => $results['output']['raw']['contact'],
 						'relationship_2' => 'calls',
 						'link_to_2' => $results['output']['raw']['id'],
