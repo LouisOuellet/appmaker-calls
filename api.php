@@ -401,7 +401,7 @@ class callsAPI extends CRUDAPI {
 		if(!is_array($data)){ $data = json_decode($data, true); }
 		if(isset($data['relationship'],$data['link_to'])){
 			if((isset($data['contact']))&&($data['contact'] != '')&&($data['contact'] != null)){
-				$data['phone'] = $this->Auth->query('SELECT * FROM `users` WHERE `id` = ?',$data['contact'])->fetchAll()->all()[0]['phone'];
+				$data['phone'] = $this->Auth->query('SELECT * FROM `contacts` WHERE `id` = ?',$data['contact'])->fetchAll()->all()[0]['phone'];
 			} else {
 				$data['phone'] = $this->Auth->query('SELECT * FROM `'.$data['relationship'].'` WHERE `id` = ?',$data['link_to'])->fetchAll()->all()[0]['phone'];
 			}
