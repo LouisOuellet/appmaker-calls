@@ -121,9 +121,17 @@ API.Plugins.calls = {
 	Events:{
 		start:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
-			// for(const [key, value] of Object.entries(dataset.output.dom)){ API.Helper.set(API.Contents,['data','dom','calls',value.id],value); }
-			API.Plugins.calls.GUI.widget(dataset,call,function(){
+			for(const [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
+				API.Builder.Timeline.add.call(layout.timeline,call,'phone-square','olive',function(item){
+					item.find('i').first().addClass('pointer');
+					item.find('i').first().off().click(function(){
+						API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
+					});
+				});
+			}
+			API.Plugins.calls.GUI.widget(dataset,call,function(toast){
 				console.log({dataset:dataset,call:call});
+				if(callback != null){ callback(dataset,call,toast); }
 			});
 		},
 	},
