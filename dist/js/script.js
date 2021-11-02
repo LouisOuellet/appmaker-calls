@@ -122,7 +122,9 @@ API.Plugins.calls = {
 		start:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
 			// for(const [key, value] of Object.entries(dataset.output.dom)){ API.Helper.set(API.Contents,['data','dom','calls',value.id],value); }
-			API.Plugins.calls.GUI.widget(dataset,call);
+			API.Plugins.calls.GUI.widget(dataset,call,function(){
+				console.log({dataset:dataset,call:call});
+			});
 		},
 	},
 }
