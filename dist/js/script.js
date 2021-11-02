@@ -114,8 +114,15 @@ API.Plugins.calls = {
 				toast.find('button').off().click(function(){
 					console.log('end call');
 				});
+				if(callback != null){ callback(toast); }
 			});
-			// $(document).Toasts('create',{fade: true,close: false,class: 'toastCallWidget',title: title,position: 'bottomRight',body: body});
+		},
+	},
+	Events:{
+		start:function(dataset,call,options = {},callback = null){
+			if(options instanceof Function){ callback = options; options = {}; }
+			// for(const [key, value] of Object.entries(dataset.output.dom)){ API.Helper.set(API.Contents,['data','dom','calls',value.id],value); }
+			API.Plugins.calls.GUI.widget(dataset,call);
 		},
 	},
 }
