@@ -75,18 +75,29 @@ API.Plugins.calls = {
 		},
 		widget:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
-			var contact = dataset.relations.contacts[call.contact];
 			var title = '', body = '';
-			title += '<div class="row">';
-        title += '<div class="col-3 text-center align-middle">';
-          title += '<img class="img-circle" style="max-height:65px;max-width:65px;" src="./dist/img/default.png">';
-        title += '</div>';
-				title += '<div class="col-9">';
-	        title += '<h4 class="font-weight-light">'+contact.name+'</h4>';
-	        title += '<h5 class="font-weight-light">'+contact.job_title+'</h5>';
-	      title += '</div>';
-			title += '</div>';
-			body += '<div class="row" data-type="callWidget" data-id="'+call.id+'">';
+			if(API.Helper.isSet(dataset,['relations','contacts',call.contact])){
+				var contact = dataset.relations.contacts[call.contact];
+				title += '<div class="row">';
+	        title += '<div class="col-3 text-center align-middle">';
+	          title += '<img class="img-circle" style="max-height:65px;max-width:65px;" src="./dist/img/default.png">';
+	        title += '</div>';
+					title += '<div class="col-9">';
+		        title += '<h4 class="font-weight-light">'+contact.name+'</h4>';
+		        title += '<h5 class="font-weight-light">'+contact.job_title+'</h5>';
+		      title += '</div>';
+				title += '</div>';
+			} else {
+				title += '<div class="row">';
+	        title += '<div class="col-3 text-center align-middle">';
+	          title += '<img class="img-circle" style="max-height:65px;max-width:65px;" src="./dist/img/building.png">';
+	        title += '</div>';
+					title += '<div class="col-9">';
+		        title += '<h4 class="font-weight-light">'+dataset.this.dom.name+'</h4>';
+		      title += '</div>';
+				title += '</div>';
+			}
+			body += '<div class="row">';
 				body += '<div class="col-8">';
 					body += '<a class="btn btn-sm btn-block btn-success"><i class="fas fa-phone-alt mr-2"></i>'+call.phone+'</a>';
 				body += '</div>';
@@ -95,6 +106,7 @@ API.Plugins.calls = {
 				body += '</div>';
 			body += '</div>';
 			API.Plugins.calls.GUI.toast.create(title,body,function(toast){
+				toast.attr('data-id',call.id);
 				console.log(toast);
 			});
 			// $(document).Toasts('create',{fade: true,close: false,class: 'toastCallWidget',title: title,position: 'bottomRight',body: body});
