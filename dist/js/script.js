@@ -90,7 +90,7 @@ API.Plugins.calls = {
 			} else {
 				title += '<div class="row">';
 	        title += '<div class="col-3 text-center align-middle">';
-	          title += '<img class="img-circle" style="max-height:65px;max-width:65px;" src="./dist/img/building.png">';
+	          title += '<img class="img-circle bg-white" style="max-height:65px;max-width:65px;" src="./dist/img/building.png">';
 	        title += '</div>';
 					title += '<div class="col-9">';
 		        title += '<h4 class="font-weight-light">'+dataset.this.dom.name+'</h4>';
