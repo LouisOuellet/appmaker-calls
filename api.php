@@ -8,6 +8,7 @@ class callsAPI extends CRUDAPI {
 		$calls = ["dom" => [], "raw" => []];
 		// Init Organization
 		$API = new organizationsAPI;
+		$organizations = [];
 		// Fetch all active Calls
 		$activeCalls = $this->Auth->query('SELECT * FROM `calls` WHERE `assigned_to` = ? AND `status` = ?',$this->Auth->User['id'],3)->fetchAll();
 		if($activeCalls != null){
