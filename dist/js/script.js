@@ -9,7 +9,7 @@ API.Plugins.calls = {
 		var checkCalls = setInterval(function() {
 			if(API.initiated){
 				clearInterval(checkCalls);
-				$(document).on('created.lte.toast', function(a,b,c,d,e,f){
+				$('body').on('created.lte.toast', function(a,b,c,d,e,f){
 					console.log({
 						a:a,
 						b:b,
