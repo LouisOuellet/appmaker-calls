@@ -59,14 +59,12 @@ API.Plugins.calls = {
 			init:function(){
 				$('body').prepend('<div id="toastsCalls" class="toasts-bottom-right fixed"></div>');
 				API.Plugins.calls.GUI.toast.element = $('body').find('#toastsCalls');
-				console.log(API.Plugins.calls.GUI.toast.element);
 			},
 			create:function(title,body,options = {},callback = null){
-				console.log({title:title,body:body});
 				if(options instanceof Function){ callback = options; options = {}; }
 				var html = '';
-				html += '<div class="toast toastCallWidget fade">';
-			    html += '<div class="toast-header">'+title+'</div>';
+				html += '<div class="toast fade show">';
+			    html += '<div class="toast-header" style="display:block">'+title+'</div>';
 			    html += '<div class="toast-body">'+body+'</div>';
 			  html += '</div>';
 				API.Plugins.calls.GUI.toast.element.prepend(html);
