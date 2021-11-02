@@ -413,6 +413,18 @@ class callsAPI extends CRUDAPI {
 					'link_to_2' => $results['output']['raw']['id'],
 				]);
 				$relationships = $this->getRelationships($data['relationship'],$data['link_to']);
+				$status = [];
+				$statuses = $this->Auth->read('statuses','issues','relationship');
+				if($statuses != NULL){
+					foreach($statuses->all() as $status){
+						$status[$status['id']] = [
+							'name' => $status['name'],
+							'icon' => $status['icon'],
+							'color' => $status['color'],
+							'order' => $status['order'],
+						];
+					}
+				}
 				$issues = [];
 				foreach($relationships as $relationship){
 					foreach($relationship as $relation){
@@ -420,14 +432,16 @@ class callsAPI extends CRUDAPI {
 					}
 				}
 				foreach($issues as $issueID => $issueStatus){
-					$this->createRelationship([
-						'relationship_1' => 'issues',
-						'link_to_1' => $issueID,
-						'relationship_2' => 'calls',
-						'link_to_2' => $results['output']['raw']['id'],
-						'relationship_3' => 'statuses',
-						'link_to_3' => $issueStatus,
-					]);
+					if(isset($status[$issueStatus]) && $status[$issueStatus]['order'] < 4){
+						$this->createRelationship([
+							'relationship_1' => 'issues',
+							'link_to_1' => $issueID,
+							'relationship_2' => 'calls',
+							'link_to_2' => $results['output']['raw']['id'],
+							'relationship_3' => 'statuses',
+							'link_to_3' => $issueStatus,
+						]);
+					}
 				}
 				if((isset($results['output']['raw']['contact']))&&($results['output']['raw']['contact'] != '')&&($results['output']['raw']['contact'] != null)){
 					$this->createRelationship([
@@ -442,6 +456,7 @@ class callsAPI extends CRUDAPI {
 			return $results;
 		}
 	}
+
 	public function delete($request = null, $data = null){
 		if(!is_array($data)){ $data = json_decode($data, true); }
 		$results = parent::delete($request, $data);
