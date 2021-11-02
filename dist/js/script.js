@@ -75,13 +75,15 @@ API.Plugins.calls = {
 					body += '<button type="button" class="btn btn-sm btn-block btn-danger"><i class="fas fa-phone-slash mr-2"></i>End</button>';
 				body += '</div>';
 			body += '</div>';
-			$(document).Toasts('create', {
-				fade: true,
-				close: false,
-				class: 'toastCallWidget',
-				title: title,
-				position: 'bottomRight',
-				body: body
+			$(document).Toasts('create',{fade: true,close: false,class: 'toastCallWidget',title: title,position: 'bottomRight',body: body},function(a,b,c,d,e,f){
+				console.log({
+					a:a,
+					b:b,
+					c:c,
+					d:d,
+					e:e,
+					f:f,
+				});
 			});
 		},
 	},
