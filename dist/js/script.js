@@ -63,7 +63,7 @@ API.Plugins.calls = {
 			create:function(title,body,options = {},callback = null){
 				if(options instanceof Function){ callback = options; options = {}; }
 				var html = '';
-				html += '<div class="toast bg-dark fade show">';
+				html += '<div class="toast bg-dark fade show" style="width:100%;">';
 			    html += '<div class="toast-header" style="display:block">'+title+'</div>';
 			    html += '<div class="toast-body">'+body+'</div>';
 			  html += '</div>';
