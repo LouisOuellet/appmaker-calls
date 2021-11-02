@@ -107,7 +107,13 @@ API.Plugins.calls = {
 			body += '</div>';
 			API.Plugins.calls.GUI.toast.create(title,body,function(toast){
 				toast.attr('data-id',call.id);
-				console.log(toast);
+				if(API.debug){ toast.find('img').off().click(function(){ console.log(toast); }); }
+				toast.find('a').off().click(function(){
+					API.CRUD.read.show({ key:'name',keys:dataset.this.dom, href:"?p=organizations&v=details&id="+dataset.this.dom.name, modal:true });
+				});
+				toast.find('button').off().click(function(){
+					console.log('end call');
+				});
 			});
 			// $(document).Toasts('create',{fade: true,close: false,class: 'toastCallWidget',title: title,position: 'bottomRight',body: body});
 		},
