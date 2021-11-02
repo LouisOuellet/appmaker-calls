@@ -57,7 +57,7 @@ API.Plugins.calls = {
 	GUI:{
 		toast:{
 			init:function(){
-				$('body').prepend('<div class="toasts-bottom-right fixed bg-success px-0" style="width:400px;"></div>');
+				$('body').prepend('<div class="toasts-bottom-right fixed py-3" style="width:400px;"></div>');
 				API.Plugins.calls.GUI.toast.element = $('body').find('div').first();
 			},
 			create:function(title,body,options = {},callback = null){
