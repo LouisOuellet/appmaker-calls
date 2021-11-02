@@ -57,15 +57,15 @@ API.Plugins.calls = {
 	GUI:{
 		toast:{
 			init:function(){
-				$('body').prepend('<div id="toastsCalls" class="toasts-bottom-right fixed"></div>');
-				API.Plugins.calls.GUI.toast.element = $('body').find('#toastsCalls');
+				$('body').prepend('<div class="toasts-bottom-right fixed" style="width:400px;"></div>');
+				API.Plugins.calls.GUI.toast.element = $('body').find('div').first();
 			},
 			create:function(title,body,options = {},callback = null){
 				if(options instanceof Function){ callback = options; options = {}; }
 				var html = '';
-				html += '<div class="toast fade show">';
-			    html += '<div class="toast-header bg-dark" style="display:block">'+title+'</div>';
-			    html += '<div class="toast-body bg-dark">'+body+'</div>';
+				html += '<div class="toast bg-dark fade show">';
+			    html += '<div class="toast-header" style="display:block">'+title+'</div>';
+			    html += '<div class="toast-body">'+body+'</div>';
 			  html += '</div>';
 				API.Plugins.calls.GUI.toast.element.prepend(html);
 				var toast = API.Plugins.calls.GUI.toast.element.find('div.toast').first();
