@@ -78,12 +78,12 @@ API.Plugins.calls = {
 			var contact = dataset.relations.contacts[call.contact];
 			var title = '', body = '';
 			title += '<div class="row">';
-        title += '<div class="col-4">';
+        title += '<div class="col-3 text-center align-middle">';
           title += '<img class="img-circle" style="max-height:65px;max-width:65px;" src="./dist/img/default.png">';
         title += '</div>';
-				title += '<div class="col-8">';
-	        title += '<h3 class="widget-user-username">'+contact.name+'</h3>';
-	        title += '<h5 class="widget-user-desc">'+contact.job_title+'</h5>';
+				title += '<div class="col-9">';
+	        title += '<h4 class="font-weight-light">'+contact.name+'</h4>';
+	        title += '<h5 class="font-weight-light">'+contact.job_title+'</h5>';
 	      title += '</div>';
 			title += '</div>';
 			body += '<div class="row" data-type="callWidget" data-id="'+call.id+'">';
