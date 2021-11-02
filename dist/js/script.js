@@ -58,15 +58,13 @@ API.Plugins.calls = {
 			if(options instanceof Function){ callback = options; options = {}; }
 			var contact = dataset.relations.contacts[call.contact];
 			var title = '', body = '';
-			title += '<div class="card card-widget widget-user-2">'
-				title += '<div class="widget-user-header">';
-	        title += '<div class="widget-user-image">';
-	          title += '<img class="img-circle elevation-2" src="./dist/img/default.png">';
-	        title += '</div>';
-	        title += '<h3 class="widget-user-username">'+contact.name+'</h3>';
-	        title += '<h5 class="widget-user-desc">'+contact.job_title+'</h5>';
-	      title += '</div>';
-			title += '</div>';
+			title += '<div class="widget-user-header">';
+        title += '<div class="widget-user-image">';
+          title += '<img class="img-circle elevation-2" style="max-height:65px;max-width:65px;" src="./dist/img/default.png">';
+        title += '</div>';
+        title += '<h3 class="widget-user-username">'+contact.name+'</h3>';
+        title += '<h5 class="widget-user-desc">'+contact.job_title+'</h5>';
+      title += '</div>';
 			body += '<div class="row" data-type="callWidget" data-id="'+call.id+'">';
 				body += '<div class="col-8">';
 					body += '<a class="btn btn-sm btn-block btn-success"><i class="fas fa-phone-alt mr-2"></i>'+call.phone+'</a>';
