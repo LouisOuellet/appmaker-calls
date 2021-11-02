@@ -58,7 +58,7 @@ API.Plugins.calls = {
 		toast:{
 			init:function(){
 				$('body').prepend('<div id="toastsCalls" class="toasts-bottom-right fixed"></div>');
-				API.Plugins.calls.GUI.toast.element = $('body').find('toastsCalls');
+				API.Plugins.calls.GUI.toast.element = $('body').find('#toastsCalls');
 				console.log(API.Plugins.calls.GUI.toast.element);
 			},
 			create:function(title,body,options = {},callback = null){
