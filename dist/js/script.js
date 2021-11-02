@@ -68,7 +68,9 @@ API.Plugins.calls = {
 			    html += '<div class="toast-body">'+body+'</div>';
 			  html += '</div>';
 				API.Plugins.calls.GUI.toast.element.prepend(html);
-				if(callback != null){ callback(API.Plugins.calls.GUI.toast.element.find('div.toast').first()); }
+				var toast = API.Plugins.calls.GUI.toast.element.find('div.toast').first();
+				toast.show();
+				if(callback != null){ callback(toast); }
 			}
 		},
 		widget:function(dataset,call,options = {},callback = null){
