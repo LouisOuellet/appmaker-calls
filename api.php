@@ -6,8 +6,8 @@ class callsAPI extends CRUDAPI {
 		$this->Auth->setLimit(0);
 		// Init Vars
 		$calls = ["dom" => [], "raw" => []];
-		$organizations = ["dom" => [], "raw" => []];
-		$issues = ["dom" => [], "raw" => []];
+		// Init Organization
+		$API = new organizationsAPI;
 		// Fetch all active Calls
 		$activeCalls = $this->Auth->query('SELECT * FROM `calls` WHERE `assigned_to` = ? AND `status` = ?',$this->Auth->User['id'],3)->fetchAll();
 		if($activeCalls != null){
@@ -16,34 +16,7 @@ class callsAPI extends CRUDAPI {
 				$calls['raw'][$call['id']] = $call;
 				$calls['dom'][$call['id']] = $this->convertToDOM($call);
 				// Fetch Organizations
-				if($this->Auth->valid('table','organizations',1)){
-					if((isset($call['organization']))&&($call['organization'] != null)&&($call['organization'] != '')){
-						if(!isset($organizations['raw'][$call['organization']],$organizations['dom'][$call['organization']])){
-							$organization = $this->Auth->query('SELECT * FROM `organizations` WHERE `id` = ?',$call['organization'])->fetchAll();
-							if($organization != null){
-								$organizations['raw'][$call['organization']] = $organization->all()[0];
-								$organizations['dom'][$call['organization']] = $this->convertToDOM($organizations['raw'][$call['organization']]);
-							}
-						}
-					}
-				}
-				// Fetch Issues
-				if($this->Auth->valid('table','issues',1)){
-					$relationships = $this->getRelationships('calls',$call['id']);
-					foreach($relationships as $relations){
-						foreach($relations as $relation){
-							if($relation['relationship'] == 'issues'){
-								if(!isset($issues['raw'][$relation['link_to']],$issues['dom'][$relation['link_to']])){
-									$issue = $this->Auth->query('SELECT * FROM `issues` WHERE `id` = ?',$relation['link_to'])->fetchAll();
-									if($issue != null){
-										$issues['raw'][$relation['link_to']] = $issue->all()[0];
-										$issues['dom'][$relation['link_to']] = $this->convertToDOM($issues['raw'][$relation['link_to']]);
-									}
-								}
-							}
-						}
-					}
-				}
+				$organizations[$call['organization']] = $API->get('organizations',['id' => $call['organization']]);
 			}
 			// Return
 			return [
@@ -53,7 +26,6 @@ class callsAPI extends CRUDAPI {
 				"output" => [
 					'calls' => $calls,
 					'organizations' => $organizations,
-					'issues' => $issues,
 				],
 			];
 		} else {

@@ -1,5 +1,5 @@
 <div data-plugin="calls" data-id="">
-	<span data-plugin="calls" data-key="id" style="display:none;"></span>
+	<!-- <span data-plugin="calls" data-key="id" style="display:none;"></span>
 	<span data-plugin="calls" data-key="date" style="display:none;"></span>
 	<span data-plugin="calls" data-key="time" style="display:none;"></span>
 	<span data-plugin="calls" data-key="status" style="display:none;"></span>
@@ -81,5 +81,5 @@
 	      </div>
 	    </div>
 		</div>
-	</div>
+	</div> -->
 </div>
