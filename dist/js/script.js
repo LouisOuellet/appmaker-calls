@@ -64,7 +64,7 @@ API.Plugins.calls = {
 				if(options instanceof Function){ callback = options; options = {}; }
 				var html = '';
 				html += '<div class="toast bg-dark fade show" style="max-width:100%;">';
-			    html += '<div class="toast-header" style="display:block">'+title+'</div>';
+			    html += '<div class="toast-header py-2" style="display:block">'+title+'</div>';
 			    html += '<div class="toast-body">'+body+'</div>';
 			  html += '</div>';
 				API.Plugins.calls.GUI.toast.element.prepend(html);
