@@ -9,17 +9,7 @@ API.Plugins.calls = {
 		var checkCalls = setInterval(function() {
 			if(API.initiated){
 				clearInterval(checkCalls);
-				$('body').on('created.lte.toast', function(a,b,c,d,e,f){
-					console.log({
-						a:a,
-						b:b,
-						c:c,
-						d:d,
-						e:e,
-						f:f,
-						this:this,
-					});
-				});
+				API.Plugins.calls.GUI.toast.init();
 				API.request('calls','getActive',{report:true,toast:false},function(result){
 					var dataset = JSON.parse(result);
 					if(dataset.success != undefined){
@@ -65,6 +55,22 @@ API.Plugins.calls = {
 		},
 	},
 	GUI:{
+		toast:{
+			init:function(){
+				$('body').prepend('<div id="toastsCalls" class="toasts-bottom-right fixed"></div>');
+				API.Plugins.calls.GUI.toast.element = $('body').find('toastsCalls');
+			},
+			create:function(title,body,options = {},callback = null){
+				if(options instanceof Function){ callback = options; options = {}; }
+				var html = '';
+				html += '<div class="toast toastCallWidget fade">';
+			    html += '<div class="toast-header">'+title+'</div>';
+			    html += '<div class="toast-body">'+body+'</div>';
+			  html += '</div>';
+				API.Plugins.calls.GUI.toast.element.prepend(html);
+				if(callback != null){ callback(API.Plugins.calls.GUI.toast.element.find('div.toast').first()); }
+			}
+		},
 		widget:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
 			var contact = dataset.relations.contacts[call.contact];
@@ -86,7 +92,10 @@ API.Plugins.calls = {
 					body += '<button type="button" class="btn btn-sm btn-block btn-danger"><i class="fas fa-phone-slash mr-2"></i>End</button>';
 				body += '</div>';
 			body += '</div>';
-			$(document).Toasts('create',{fade: true,close: false,class: 'toastCallWidget',title: title,position: 'bottomRight',body: body});
+			API.Plugins.calls.GUI.toast.create(title,body,function(toast){
+				console.log(toast);
+			});
+			// $(document).Toasts('create',{fade: true,close: false,class: 'toastCallWidget',title: title,position: 'bottomRight',body: body});
 		},
 	},
 }
