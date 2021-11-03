@@ -48,25 +48,27 @@ class callsAPI extends CRUDAPI {
 		if(isset($data)){
 			if(!is_array($data)){ $data = json_decode($data, true); }
 			$this->Auth->setLimit(0);
-			$call = $this->Auth->read('calls',$data['id']);
-			if($call != null){
-				$call = $call->all()[0];
-				// Update Current Call
-				if(isset($data['status'],$data['status'])){ $call['status'] = $data['status']; }
-				$return = parent::update($request, $call);
-				// Get Status
-				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
-				// Create Call Status
-				$this->createRelationship([
-					'relationship_1' => 'organizations',
-					'link_to_1' => $call['organization'],
-					'relationship_2' => $request,
-					'link_to_2' => $call['id'],
-					'relationship_3' => 'statuses',
-					'link_to_3' => $status['id'],
-				]);
-				// Return
-				return $return;
+			if(isset($data['id'])){
+				$call = $this->Auth->read('calls',$data['id']);
+				if($call != null){
+					$call = $call->all()[0];
+					// Update Current Call
+					if(isset($data['status'],$data['status'])){ $call['status'] = $data['status']; }
+					$return = parent::update($request, $call);
+					// Get Status
+					$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
+					// Create Call Status
+					$this->createRelationship([
+						'relationship_1' => 'organizations',
+						'link_to_1' => $call['organization'],
+						'relationship_2' => $request,
+						'link_to_2' => $call['id'],
+						'relationship_3' => 'statuses',
+						'link_to_3' => $status['id'],
+					]);
+					// Return
+					return $return;
+				}
 			}
 		}
 	}
