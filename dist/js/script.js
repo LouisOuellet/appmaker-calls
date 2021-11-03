@@ -35,8 +35,8 @@ API.Plugins.calls = {
 				},function(result) {
 					var dataset = JSON.parse(result);
 					if(dataset.success != undefined){
-						for(const [key, value] of Object.entries(dataset.output.dom)){ API.Helper.set(API.Contents,['data','dom','calls',value.id],value); }
-						for(const [key, value] of Object.entries(dataset.output.raw)){ API.Helper.set(API.Contents,['data','raw','calls',value.id],value); }
+						for(var [key, value] of Object.entries(dataset.output.dom)){ API.Helper.set(API.Contents,['data','dom','calls',value.id],value); }
+						for(var [key, value] of Object.entries(dataset.output.raw)){ API.Helper.set(API.Contents,['data','raw','calls',value.id],value); }
 						API.Builder.table(card.children('.card-body'), dataset.output.dom, {
 							headers:dataset.output.headers,
 							id:'CallsIndex',
@@ -121,9 +121,9 @@ API.Plugins.calls = {
 		},
 	},
 	Events:{
-		start:function(dataset,call,options = {},callback = null){
+		create:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
-			for(const [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
+			for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 				layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 				layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
 				API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
@@ -139,19 +139,172 @@ API.Plugins.calls = {
 				if(callback != null){ callback(dataset,call,toast); }
 			});
 		},
+		start:function(dataset,call,options = {},callback = null){
+			if(options instanceof Function){ callback = options; options = {}; }
+			call.status = 3;
+			API.request('calls','start',{data:call.raw},function(result){
+				var record = JSON.parse(result);
+				if(typeof record.success !== 'undefined'){
+					API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
+					API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
+					API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
+					for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[record.output.raw.organization])){
+						layout.content.calls.find('tr[data-id="'+record.output.dom.id+'"]').remove();
+						layout.content.callbacks.find('tr[data-id="'+record.output.dom.id+'"]').remove();
+						API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.dom.id]);
+						API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.dom.id],'phone-square','olive',function(item){
+							item.find('i').first().addClass('pointer');
+							item.find('i').first().off().click(function(){
+								API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
+							});
+						});
+					}
+					API.Plugins.calls.GUI.widget(dataset,call,function(toast){
+						if(callback != null){ callback(dataset,call,toast); }
+					});
+				}
+			});
+		},
 		cancel:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
-			for(const [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
-				layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
-				layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
-				API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
-				API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
-					item.find('i').first().addClass('pointer');
-					item.find('i').first().off().click(function(){
-						API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
+			call.status = 6;
+			API.request('calls','start',{data:call.raw},function(result){
+				var record = JSON.parse(result);
+				if(typeof record.success !== 'undefined'){
+					API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
+					API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
+					API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
+					for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[record.output.raw.organization])){
+						layout.content.calls.find('tr[data-id="'+record.output.dom.id+'"]').remove();
+						layout.content.callbacks.find('tr[data-id="'+record.output.dom.id+'"]').remove();
+						API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.dom.id]);
+						API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.dom.id],'phone-square','olive',function(item){
+							item.find('i').first().addClass('pointer');
+							item.find('i').first().off().click(function(){
+								API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
+							});
+						});
+					}
+				}
+			});
+		},
+		reschedule:function(dataset,call,options = {},callback = null){
+		// reschedule:function(call, organization, issues = {dom:[],raw:[]}, options = {}, callback = null){
+			if(options instanceof Function){ callback = options; options = {}; }
+			API.Builder.modal($('body'), {
+				title:'Why are you re-scheduling this call',
+				icon:'question',
+				zindex:'top',
+				css:{ dialog:"modal-lg",header:"bg-primary",body:'p-0'},
+			}, function(modal){
+				modal.on('hide.bs.modal',function(){ modal.remove(); });
+				var dialog = modal.find('.modal-dialog');
+				var header = modal.find('.modal-header');
+				var body = modal.find('.modal-body');
+				var footer = modal.find('.modal-footer');
+				header.find('button[data-control="hide"]').remove();
+				header.find('button[data-control="update"]').remove();
+				body.html('<div class="row"></div>');
+				API.Builder.input(body.find('div.row'), 'date', null,{plugin:'calls'}, function(input){
+					input.wrap('<div class="col-md-6 py-3 pl-4"></div>');
+					API.Builder.input(body.find('div.row'), 'time', null,{plugin:'calls'}, function(input){
+						input.wrap('<div class="col-md-6 py-3 pr-4"></div>');
+						body.find('div.row').append('<div class="col-md-12"><textarea id="rescheduleCallNote" title="Note" name="note" class="form-control"></textarea></div>');
+						body.find('textarea').summernote({
+							toolbar: [
+								['font', ['fontname', 'fontsize']],
+								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+								['color', ['color']],
+								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
+							],
+							height: 250,
+						});
 					});
 				});
-			}
+				footer.append('<button class="btn btn-primary" data-action="reschedule"><i class="fas fa-calendar-day mr-1"></i>Re-Schedule</button>');
+				footer.find('button[data-action="reschedule"]').off().click(function(){
+					if(!body.find('textarea').summernote('isEmpty')){ call.note = body.find('textarea').summernote('code'); }
+					call.newdate = body.find('input[data-key="date"]').val();
+					call.newtime = body.find('input[data-key="time"]').val();
+					if((call.newdate != '')&&(call.newtime != '')){
+						API.request('calls','reschedule',{ data:call },function(result){
+							var record = JSON.parse(result);
+							if(record.success != undefined){
+								// for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
+								// 	layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
+								// 	layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
+								// 	API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
+								// 	API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
+								// 		item.find('i').first().addClass('pointer');
+								// 		item.find('i').first().off().click(function(){
+								// 			API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
+								// 		});
+								// 	});
+								// }
+								// Update Call Window
+								if(callCTN.length > 0){
+									// Adding Call Status to Timeline
+									API.Builder.Timeline.add.status(callCTN.find('#calls_timeline'),record.output.status);
+									// Update controls
+									callCTN.find('#calls_details').find('td[data-plugin="calls"][data-key="status"]').html('<span class="badge bg-'+record.output.status.color+'"><i class="'+record.output.status.icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[record.output.status.name]+'</span>');
+									callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').first().hide();
+									callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').last().hide();
+								}
+								// Update Organization Window
+								if(organizationCTN.length > 0){
+									// Update Call Table
+									if(trCTN.length > 0){
+										trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
+										trCTN.parents().eq(4).find('#organizations_calls div table tbody').append(trCTN);
+									}
+									// Adding Call Status to Timeline
+									record.output.dom.created = record.output.raw.modified;
+									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),record.output.dom,'phone-square','olive',function(item){
+										item.find('i').first().addClass('pointer');
+										item.find('i').first().off().click(function(){
+											API.CRUD.read.show({ key:{id:record.output.dom.id}, title:record.output.dom.phone, href:"?p=calls&v=details&id="+record.output.dom.id, modal:true });
+										});
+									});
+									// Adding Note
+									if(API.Auth.validate('custom', 'organizations_notes', 1)){
+										if(API.Helper.isSet(data,['output','note','dom'])){
+										  API.Builder.Timeline.add.card(organizationCTN.find('#organizations_timeline'),record.output.note.dom,'sticky-note','warning',function(item){
+										    item.find('.timeline-footer').remove();
+										  });
+										}
+									}
+									// Update controls
+									if(((API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Auth.Options.application.showInlineCallsControls.value))||((!API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Settings.customization.showInlineCallsControls.value))){
+										organizationCTN.find('[data-id][data-type="calls"]').find('td[data-showInlineCallsControls]').off();
+										API.Plugins.organizations.Events.calls(organizationCTN,organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]'),call,organization,issues);
+										organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]').find('button[data-action="reschedule"]').parent().hide();
+									}
+									// Adding new Callback
+									if(API.Helper.isSet(record.output,['new'])){
+										API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:record.output.new.output.dom,raw:record.output.new.output.raw},organization,issues, true);
+									}
+								}
+								if(callback != null){ callback({call:call,issues:issues,organization:organization},{callCTN:callCTN,organizationCTN:organizationCTN,trCTN:trCTN,widgetCTN:widgetCTN}); }
+							}
+						});
+						modal.modal('hide');
+						callCTN.parents().eq(3).modal('hide');
+					} else {
+						body.find('textarea').summernote('destroy');
+						body.find('textarea').summernote({
+							toolbar: [
+								['font', ['fontname', 'fontsize']],
+								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+								['color', ['color']],
+								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
+							],
+							height: 250,
+						});
+						alert('Date and time required!');
+					}
+				});
+				modal.modal('show');
+			});
 		},
 	},
 }
