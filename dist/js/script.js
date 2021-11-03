@@ -142,7 +142,7 @@ API.Plugins.calls = {
 		start:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
 			call.status = 3;
-			API.request('calls','start',{data:call.raw},function(result){
+			API.request('calls','start',{data:call},function(result){
 				var record = JSON.parse(result);
 				if(typeof record.success !== 'undefined'){
 					API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
@@ -168,7 +168,7 @@ API.Plugins.calls = {
 		cancel:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
 			call.status = 6;
-			API.request('calls','cancel',{data:call.raw},function(result){
+			API.request('calls','cancel',{data:call},function(result){
 				var record = JSON.parse(result);
 				if(typeof record.success !== 'undefined'){
 					API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
