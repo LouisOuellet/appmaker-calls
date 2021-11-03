@@ -151,16 +151,16 @@ API.Plugins.calls = {
 					for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[record.output.raw.organization])){
 						layout.content.calls.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 						layout.content.callbacks.find('tr[data-id="'+record.output.dom.id+'"]').remove();
-						API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.dom.id]);
-						API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.dom.id],'phone-square','olive',function(item){
+						API.Plugins.organizations.GUI.call(dataset,layout,record.output.raw);
+						API.Builder.Timeline.add.call(layout.timeline,record.output.raw,'phone-square','olive',function(item){
 							item.find('i').first().addClass('pointer');
 							item.find('i').first().off().click(function(){
 								API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 							});
 						});
 					}
-					API.Plugins.calls.GUI.widget(dataset,call,function(toast){
-						if(callback != null){ callback(dataset,call,toast); }
+					API.Plugins.calls.GUI.widget(dataset,record.output.raw,function(toast){
+						if(callback != null){ callback(dataset,record.output.raw,toast); }
 					});
 				}
 			});
@@ -184,6 +184,7 @@ API.Plugins.calls = {
 								API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 							});
 						});
+						if(callback != null){ callback(dataset,record.output.raw); }
 					}
 				}
 			});
