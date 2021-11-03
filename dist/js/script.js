@@ -190,7 +190,6 @@ API.Plugins.calls = {
 			});
 		},
 		reschedule:function(dataset,call,options = {},callback = null){
-		// reschedule:function(call, organization, issues = {dom:[],raw:[]}, options = {}, callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
 			API.Builder.modal($('body'), {
 				title:'Why are you re-scheduling this call',
