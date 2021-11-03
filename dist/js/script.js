@@ -230,19 +230,18 @@ API.Plugins.calls = {
 						API.request('calls','reschedule',{ data:call },function(result){
 							var record = JSON.parse(result);
 							console.log(record);
-							if(record.succss != undefined){
+							if(record.success != undefined){
 								// Update Browser
 								API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
 								API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
 								API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
 								if(API.Helper.isSet(record.output,['new'])){
-									API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
-									API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
-									API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
+									API.Helper.set(dataset,['details','calls','dom',record.output.new.output.dom.id],record.output.new.output.dom);
+									API.Helper.set(dataset,['details','calls','raw',record.output.new.output.raw.id],record.output.new.output.raw);
+									API.Helper.set(dataset,['relations','calls',record.output.new.output.dom.id],record.output.new.output.dom);
 								}
 								// Update Organization
 								for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
-									// Update current call
 									layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 									layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
 									API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
@@ -252,7 +251,6 @@ API.Plugins.calls = {
 											API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 										});
 									});
-									// Add Note
 									if(API.Auth.validate('custom', 'organizations_notes', 1)){
 										if(API.Helper.isSet(record,['output','note','dom'])){
 							        API.Builder.Timeline.add.card(layout.timeline,record.output.note.dom,'sticky-note','warning',function(item){
@@ -268,19 +266,17 @@ API.Plugins.calls = {
 							        });
 										}
 									}
-									// Add new call
 									if(API.Helper.isSet(record.output,['new'])){
-										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
-										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
+										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id]);
+										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 											item.find('i').first().addClass('pointer');
 											item.find('i').first().off().click(function(){
 												API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 											});
 										});
-										// API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:record.output.new.output.dom,raw:record.output.new.output.raw},organization,issues, true);
 									}
 								}
-								// Update Call
+								// Update Call Window
 							}
 						});
 						modal.modal('hide');
