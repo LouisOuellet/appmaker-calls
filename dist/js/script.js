@@ -75,6 +75,8 @@ API.Plugins.calls = {
 		},
 		widget:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
+			console.log(API.Plugins,['calls','toast','element']));
+			console.log(API.Plugins.calls.GUI.toast.element.find('div.toast[data-id="'+call.id+'"]'));
 			if(API.Helper.isSet(API.Plugins,['calls','toast','element']) && API.Plugins.calls.GUI.toast.element.find('div.toast[data-id="'+call.id+'"]').length <= 0){
 				var title = '', body = '';
 				if(API.Helper.isSet(dataset,['relations','contacts',call.contact])){
@@ -126,7 +128,6 @@ API.Plugins.calls = {
 			for(const [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 				layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 				layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
-				console.log({dataset:dataset,layout:layout,call:call});
 				API.Plugins.organizations.GUI.call(dataset,layout,call);
 				API.Builder.Timeline.add.call(layout.timeline,call,'phone-square','olive',function(item){
 					item.find('i').first().addClass('pointer');
