@@ -75,9 +75,9 @@ API.Plugins.calls = {
 		},
 		widget:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
-			console.log(API.Helper.isSet(API.Plugins,['calls','toast','element']));
+			console.log(API.Helper.isSet(API.Plugins,['calls','GUI','toast','element']));
 			console.log(API.Plugins.calls.GUI.toast.element.find('div.toast[data-id="'+call.id+'"]'));
-			if(API.Helper.isSet(API.Plugins,['calls','toast','element']) && API.Plugins.calls.GUI.toast.element.find('div.toast[data-id="'+call.id+'"]').length <= 0){
+			if(API.Helper.isSet(API.Plugins,['calls','GUI','toast','element']) && API.Plugins.calls.GUI.toast.element.find('div.toast[data-id="'+call.id+'"]').length <= 0){
 				var title = '', body = '';
 				if(API.Helper.isSet(dataset,['relations','contacts',call.contact])){
 					var contact = dataset.relations.contacts[call.contact];
