@@ -75,53 +75,58 @@ API.Plugins.calls = {
 		},
 		widget:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
-			var title = '', body = '';
-			if(API.Helper.isSet(dataset,['relations','contacts',call.contact])){
-				var contact = dataset.relations.contacts[call.contact];
-				title += '<div class="row">';
-	        title += '<div class="col-3 text-center align-middle">';
-	          title += '<img class="img-circle" style="height:65px;width:65px;" src="./dist/img/default.png">';
-	        title += '</div>';
-					title += '<div class="col-9">';
-		        title += '<h4 class="font-weight-light">'+contact.name+'</h4>';
-		        title += '<h5 class="font-weight-light">'+contact.job_title+'</h5>';
-		      title += '</div>';
-				title += '</div>';
-			} else {
-				title += '<div class="row">';
-	        title += '<div class="col-3 text-center align-middle">';
-	          title += '<img class="img-circle bg-white" style="height:65px;width:65px;" src="./dist/img/building.png">';
-	        title += '</div>';
-					title += '<div class="col-9">';
-		        title += '<h4 class="font-weight-light">'+dataset.this.dom.name+'</h4>';
-		      title += '</div>';
-				title += '</div>';
+			if(API.Helper.isSet(API.Plugins,['calls','toast','element']) && API.Plugins.calls.GUI.toast.element.find('div.toast[data-id="'+call.id+'"]').length <= 0){
+				var title = '', body = '';
+				if(API.Helper.isSet(dataset,['relations','contacts',call.contact])){
+					var contact = dataset.relations.contacts[call.contact];
+					title += '<div class="row">';
+		        title += '<div class="col-3 text-center align-middle">';
+		          title += '<img class="img-circle" style="height:65px;width:65px;" src="./dist/img/default.png">';
+		        title += '</div>';
+						title += '<div class="col-9">';
+			        title += '<h4 class="font-weight-light">'+contact.name+'</h4>';
+			        title += '<h5 class="font-weight-light">'+contact.job_title+'</h5>';
+			      title += '</div>';
+					title += '</div>';
+				} else {
+					title += '<div class="row">';
+		        title += '<div class="col-3 text-center align-middle">';
+		          title += '<img class="img-circle bg-white" style="height:65px;width:65px;" src="./dist/img/building.png">';
+		        title += '</div>';
+						title += '<div class="col-9">';
+			        title += '<h4 class="font-weight-light">'+dataset.this.dom.name+'</h4>';
+			      title += '</div>';
+					title += '</div>';
+				}
+				body += '<div class="row">';
+					body += '<div class="col-8">';
+						body += '<a class="btn btn-sm btn-block btn-success"><i class="fas fa-phone-alt mr-2"></i>'+call.phone+'</a>';
+					body += '</div>';
+					body += '<div class="col-4">';
+						body += '<button type="button" class="btn btn-sm btn-block btn-danger"><i class="fas fa-phone-slash mr-2"></i>End</button>';
+					body += '</div>';
+				body += '</div>';
+				API.Plugins.calls.GUI.toast.create(title,body,function(toast){
+					toast.attr('data-id',call.id);
+					if(API.debug){ toast.find('img').off().click(function(){ console.log(toast); }); }
+					toast.find('a').off().click(function(){
+						API.CRUD.read.show({ key:'name',keys:dataset.this.dom, href:"?p=organizations&v=details&id="+dataset.this.dom.name, modal:true });
+					});
+					toast.find('button').off().click(function(){
+						console.log('end call');
+					});
+					if(callback != null){ callback(toast); }
+				});
 			}
-			body += '<div class="row">';
-				body += '<div class="col-8">';
-					body += '<a class="btn btn-sm btn-block btn-success"><i class="fas fa-phone-alt mr-2"></i>'+call.phone+'</a>';
-				body += '</div>';
-				body += '<div class="col-4">';
-					body += '<button type="button" class="btn btn-sm btn-block btn-danger"><i class="fas fa-phone-slash mr-2"></i>End</button>';
-				body += '</div>';
-			body += '</div>';
-			API.Plugins.calls.GUI.toast.create(title,body,function(toast){
-				toast.attr('data-id',call.id);
-				if(API.debug){ toast.find('img').off().click(function(){ console.log(toast); }); }
-				toast.find('a').off().click(function(){
-					API.CRUD.read.show({ key:'name',keys:dataset.this.dom, href:"?p=organizations&v=details&id="+dataset.this.dom.name, modal:true });
-				});
-				toast.find('button').off().click(function(){
-					console.log('end call');
-				});
-				if(callback != null){ callback(toast); }
-			});
 		},
 	},
 	Events:{
 		start:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
 			for(const [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
+				layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
+				layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
+				API.Plugins.organizations.GUI.call(data,layout,relation);
 				API.Builder.Timeline.add.call(layout.timeline,call,'phone-square','olive',function(item){
 					item.find('i').first().addClass('pointer');
 					item.find('i').first().off().click(function(){
