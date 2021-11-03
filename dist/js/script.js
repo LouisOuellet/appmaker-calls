@@ -126,8 +126,8 @@ API.Plugins.calls = {
 			for(const [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 				layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 				layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
-				API.Plugins.organizations.GUI.call(dataset,layout,call);
-				API.Builder.Timeline.add.call(layout.timeline,call,'phone-square','olive',function(item){
+				API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
+				API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
 					item.find('i').first().addClass('pointer');
 					item.find('i').first().off().click(function(){
 						API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
