@@ -400,7 +400,9 @@ API.Plugins.calls = {
 					height: 250,
 				});
 				var side = 'pr', count = 0, top = 'py';
+				console.log(dataset);
 				if(API.Helper.isSet(dataset,['relations','issues'])){
+					console.log(dataset.relations.issues);
 					for(var [id, issue] of Object.entries(dataset.relations.issues)){
 						if(issue.status <= 3){
 							API.Helper.set(call,['issues',issue.id],issue.status);
