@@ -1,44 +1,16 @@
 {
     "calls": [
         {
-            "id": 100004,
-            "created": "2021-11-03 16:09:45",
-            "modified": "2021-11-04 13:03:24",
-            "owner": "2",
-            "updated_by": "2",
-            "date": "2021-11-03",
-            "time": "16:15:00",
-            "status": 4,
-            "phone": "(450) 225-0426 ",
-            "contact": "",
-            "organization": "1",
-            "assigned_to": "2"
-        },
-        {
-            "id": 100005,
-            "created": "2021-11-03 16:14:04",
-            "modified": "2021-11-04 13:44:59",
-            "owner": "2",
-            "updated_by": "2",
-            "date": "2021-11-03",
-            "time": "15:15:00",
-            "status": 6,
-            "phone": "(450) 225-0426 ",
-            "contact": "",
-            "organization": "1",
-            "assigned_to": "2"
-        },
-        {
-            "id": 100006,
-            "created": "2021-11-04 13:03:24",
-            "modified": "2021-11-04 13:49:26",
+            "id": 100011,
+            "created": "2021-11-04 14:09:29",
+            "modified": "2021-11-04 14:09:29",
             "owner": "2",
             "updated_by": "2",
             "date": "2021-11-04",
-            "time": "13:00:00",
-            "status": 6,
+            "time": "14:15:00",
+            "status": 1,
             "phone": "(450) 225-0426 ",
-            "contact": "",
+            "contact": null,
             "organization": "1",
             "assigned_to": "2"
         }
