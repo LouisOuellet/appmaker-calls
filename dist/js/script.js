@@ -584,7 +584,7 @@ API.Plugins.calls = {
 											// Update Call Window
 											// Update Widget Window
 											if(API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').length > 0){
-												API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').remove();}
+												API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').remove();
 											}
 											if(callback != null){ callback(dataset,record.output.raw); }
 										}
@@ -735,7 +735,7 @@ API.Plugins.calls = {
 								// Update Call Window
 								// Update Widget Window
 								if(API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').length > 0){
-									API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').remove();}
+									API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').remove();
 								}
 								if(callback != null){ callback(dataset,record.output.raw); }
 							}
