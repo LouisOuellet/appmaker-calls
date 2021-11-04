@@ -235,6 +235,11 @@ API.Plugins.calls = {
 								API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
 								API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
 								API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
+								if(API.Helper.isSet(record,['output','note','dom'])){
+									API.Helper.set(dataset,['details','notes','dom',record.output.note.dom.id],record.output.note.dom);
+									API.Helper.set(dataset,['details','notes','raw',record.output.note.raw.id],record.output.note.raw);
+									API.Helper.set(dataset,['relations','notes',record.output.note.dom.id],record.output.note.dom);
+								}
 								if(API.Helper.isSet(record.output,['new'])){
 									API.Helper.set(dataset,['details','calls','dom',record.output.new.output.dom.id],record.output.new.output.dom);
 									API.Helper.set(dataset,['details','calls','raw',record.output.new.output.raw.id],record.output.new.output.raw);
