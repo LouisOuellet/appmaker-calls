@@ -428,7 +428,7 @@ API.Plugins.calls = {
 									html += '</select>';
 								html += '</div>';
 							html += '</div>';
-							body.find('div.row').append(issueHTML);
+							body.find('div.row').append(html);
 						}
 					}
 				}
