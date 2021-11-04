@@ -113,7 +113,7 @@ API.Plugins.calls = {
 						API.CRUD.read.show({ key:'name',keys:dataset.this.dom, href:"?p=organizations&v=details&id="+dataset.this.dom.name, modal:true });
 					});
 					toast.find('button').off().click(function(){
-						console.log('end call');
+						API.Plugins.calls.Events.end(dataset,call);
 					});
 					if(callback != null){ callback(toast); }
 				});
@@ -145,6 +145,7 @@ API.Plugins.calls = {
 			API.request('calls','start',{data:call},function(result){
 				var record = JSON.parse(result);
 				if(typeof record.success !== 'undefined'){
+					// Update Browser DB
 					API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
 					API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
 					API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
@@ -160,6 +161,7 @@ API.Plugins.calls = {
 							});
 						});
 					}
+					// Update Call Window
 					API.Plugins.calls.GUI.widget(dataset,record.output.raw,function(toast){
 						if(callback != null){ callback(dataset,call,toast); }
 					});
@@ -199,7 +201,7 @@ API.Plugins.calls = {
 						API.request('calls','cancel',{data:call},function(result){
 							var record = JSON.parse(result);
 							if(typeof record.success !== 'undefined'){
-								// Update Browser
+								// Update Browser DB
 								API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
 								API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
 								API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
@@ -235,6 +237,7 @@ API.Plugins.calls = {
 										}
 									}
 								}
+								// Update Call Window
 								if(callback != null){ callback(dataset,record.output.raw); }
 							}
 						});
@@ -296,9 +299,8 @@ API.Plugins.calls = {
 					if((call.newdate != '')&&(call.newtime != '')){
 						API.request('calls','reschedule',{ data:call },function(result){
 							var record = JSON.parse(result);
-							console.log(record);
 							if(record.success != undefined){
-								// Update Browser
+								// Update Browser DB
 								API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
 								API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
 								API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
@@ -350,6 +352,7 @@ API.Plugins.calls = {
 									}
 								}
 								// Update Call Window
+								if(callback != null){ callback(dataset,record.output.raw); }
 							}
 						});
 						modal.modal('hide');
@@ -365,6 +368,391 @@ API.Plugins.calls = {
 							height: 250,
 						});
 						alert('Date and time required!');
+					}
+				});
+				modal.modal('show');
+			});
+		},
+		end:function(dataset,call,options = {},callback = null){
+			if(options instanceof Function){ callback = options; options = {}; }
+			API.Builder.modal($('body'), {
+				title:'Can you detail your call',
+				icon:'question',
+				zindex:'top',
+				css:{ dialog:"modal-lg",header:"bg-danger",body:'p-0'},
+			}, function(modal){
+				modal.on('hide.bs.modal',function(){ modal.remove(); });
+				var dialog = modal.find('.modal-dialog');
+				var header = modal.find('.modal-header');
+				var body = modal.find('.modal-body');
+				var footer = modal.find('.modal-footer');
+				header.find('button[data-control="hide"]').remove();
+				header.find('button[data-control="update"]').remove();
+				body.html('<div class="row"></div>');
+				body.find('div.row').append('<div class="col-md-12"><textarea id="rescheduleCallNote" title="Note" name="note" class="form-control"></textarea></div>');
+				body.find('textarea').summernote({
+					toolbar: [
+						['font', ['fontname', 'fontsize']],
+						['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+						['color', ['color']],
+						['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
+					],
+					height: 250,
+				});
+				var side = 'pr', count = 0, top = 'py';
+				for(var [id, issue] of Object.entries(dataset.relations.issues)){
+					if(issue.status <= 3){
+						API.Helper.set(call,['issues',issue.id],issue.status);
+						count++;
+						if(count > 2){ top = 'pb'; }
+						if(side == 'pl'){ side = 'pr'; } else { side = 'pl'; }
+						var html = '';
+						html += '<div class="col-md-6 '+top+'-3 '+side+'-4" data-issue="'+issue.id+'">';
+							html += '<div class="input-group">';
+								html += '<div class="input-group-prepend">';
+									html += '<span class="input-group-text"><i class="fas fa-gavel mr-1"></i>'+issue.id+' - '+issue.name+'</span>';
+								html += '</div>';
+								html += '<select title="'+issue.id+' - '+issue.name+'" class="form-control select2bs4 select2-hidden-accessible" name="'+issue.id+'">';
+								for(var [statusOrder, status] of Object.entries(API.Contents.Statuses.issues)){
+									if(issue.status <= statusOrder){
+										if(issue.status == statusOrder){
+											html += '<option value="'+statusOrder+'" selected="selected">'+API.Contents.Language[status.name]+'</option>';
+										} else {
+											html += '<option value="'+statusOrder+'">'+API.Contents.Language[status.name]+'</option>';
+										}
+									}
+								}
+								html += '</select>';
+							html += '</div>';
+						html += '</div>';
+						body.find('div.row').append(issueHTML);
+					}
+				}
+				body.find('select').select2({ theme: 'bootstrap4' });
+				footer.append('<div class="btn-group"></div>');
+				footer.find('div.btn-group').append('<button class="btn btn-primary" data-action="reschedule"><i class="fas fa-calendar-day mr-1"></i>Re-Schedule</button>');
+				footer.find('div.btn-group').append('<button class="btn btn-danger" data-action="end"><i class="fas fa-phone-slash mr-1"></i>End</button>');
+				footer.find('button[data-action="reschedule"]').off().click(function(){
+					if(!body.find('textarea').summernote('isEmpty')){
+						call.status = 4;
+						call.note = body.find('textarea').summernote('code');
+						body.find('textarea').summernote('destroy');
+						body.find('textarea').summernote({
+							toolbar: [
+								['font', ['fontname', 'fontsize']],
+								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+								['color', ['color']],
+								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
+							],
+							height: 250,
+						});
+						for(var [id, issue] of Object.entries(dataset.relations.issues)){
+							if(issue.status <= 3){
+								API.Helper.set(call,['issues',issue.id],body.find('div[data-issue="'+issue.id+'"]').find('select').select2('val'));
+							}
+						}
+						var noteModal = modal;
+						API.Builder.modal($('body'), {
+							title:'Select a date and time',
+							icon:'question',
+							zindex:'top',
+							css:{ dialog:"modal-lg",header:"bg-primary",body:'p-0'},
+						}, function(modal){
+							modal.on('hide.bs.modal',function(){ modal.remove(); });
+							var dialog = modal.find('.modal-dialog');
+							var header = modal.find('.modal-header');
+							var body = modal.find('.modal-body');
+							var footer = modal.find('.modal-footer');
+							header.find('button[data-control="hide"]').remove();
+							header.find('button[data-control="update"]').remove();
+							body.html('<div class="row"></div>');
+							API.Builder.input(body.find('div.row'), 'date', null,{plugin:'calls'}, function(input){
+								input.wrap('<div class="col-md-6 py-3 pl-4"></div>');
+								API.Builder.input(body.find('div.row'), 'time', null,{plugin:'calls'}, function(input){
+									input.wrap('<div class="col-md-6 py-3 pr-4"></div>');
+								});
+							});
+							footer.append('<button class="btn btn-primary" data-action="reschedule"><i class="fas fa-calendar-day mr-1"></i>Re-Schedule</button>');
+							footer.find('button[data-action="reschedule"]').off().click(function(){
+								call.date = body.find('input[data-key="date"]').val();
+								call.time = body.find('input[data-key="time"]').val();
+								if((call.date != '')&&(call.time != '')){
+									API.request('calls','end',{ data:call },function(result){
+										var record = JSON.parse(result);
+										if(record.success != undefined){
+											// Update Browser DB
+											API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
+											API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
+											API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
+											if(API.Helper.isSet(record,['output','note','dom'])){
+												API.Helper.set(dataset,['details','notes','dom',record.output.note.dom.id],record.output.note.dom);
+												API.Helper.set(dataset,['details','notes','raw',record.output.note.raw.id],record.output.note.raw);
+												API.Helper.set(dataset,['relations','notes',record.output.note.dom.id],record.output.note.dom);
+											}
+											if(API.Helper.isSet(record.output,['new'])){
+												API.Helper.set(dataset,['details','calls','dom',record.output.new.output.dom.id],record.output.new.output.dom);
+												API.Helper.set(dataset,['details','calls','raw',record.output.new.output.raw.id],record.output.new.output.raw);
+												API.Helper.set(dataset,['relations','calls',record.output.new.output.dom.id],record.output.new.output.dom);
+											}
+											// Update Organization
+											for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
+												layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
+												layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
+												API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
+												dataset.relations.calls[record.output.raw.id].created = API.Helper.toString(new Date());
+												API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
+													item.find('i').first().addClass('pointer');
+													item.find('i').first().off().click(function(){
+														API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
+													});
+												});
+												if(API.Auth.validate('custom', 'organizations_notes', 1)){
+													if(API.Helper.isSet(record,['output','note','dom'])){
+										        API.Builder.Timeline.add.card(layout.timeline,record.output.note.dom,'sticky-note','warning',function(item){
+										          item.find('.timeline-footer').remove();
+										          if(API.Auth.validate('custom', 'organizations_notes', 4)){
+										            $('<a class="time bg-warning pointer"><i class="fas fa-trash-alt"></i></a>').insertAfter(item.find('span.time.bg-warning'));
+																item.find('a.pointer').off().click(function(){
+																	API.CRUD.delete.show({ keys:record.output.note.dom,key:'id', modal:true, plugin:'notes' },function(note){
+																		item.remove();
+																	});
+																});
+										          }
+										        });
+													}
+												}
+												if(API.Helper.isSet(record.output,['new'])){
+													API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id]);
+													API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
+														item.find('i').first().addClass('pointer');
+														item.find('i').first().off().click(function(){
+															API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
+														});
+													});
+												}
+												for(var [id, issue] of Object.entries(call.issues)){
+													if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
+														API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
+														dataset.relations.issues[id].created = API.Helper.toString(new Date());
+														layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
+														layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
+															API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+																remove:API.Auth.validate('custom', 'organizations_issues', 4),
+																content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[dataset.details.statuses.raw[issues[record.output.issues[id].id]].name],
+																color:{
+																	details:dataset.details.statuses.raw[issues[record.output.issues[id].id]].color
+																},
+																icon:{
+																	details:dataset.details.statuses.raw[issues[record.output.issues[id].id]].icon
+																},
+															})
+														);
+														API.Builder.Timeline.add.issue(layout.timeline,dataset.relations.issues[id],'gavel','indigo',function(item){
+															if((API.Auth.validate('plugin','issues',1))&&(API.Auth.validate('view','details',1,'issues'))){
+																item.find('i').first().addClass('pointer');
+																item.find('i').first().off().click(function(){
+																	API.CRUD.read.show({ key:'id',keys:dataset.details.issues.dom[item.attr('data-id')], href:"?p=issues&v=details&id="+dataset.details.issues.dom[item.attr('data-id')].id, modal:true });
+																});
+															}
+														});
+														API.Plugins.organizations.Events.issues(dataset,layout);
+													}
+												}
+												if(API.Helper.isSet(record,['output','services'])){
+													for(var [id, service] of Object.entries(record.output.services)){
+														API.Helper.set(dataset,['relations','services',id],record.output.services[id]);
+														dataset.relations.services[id].created = API.Helper.toString(new Date());
+														layout.details.find('td[data-plugin="organizations"][data-key="services"] div[data-id="'+id+'"]').remove();
+														layout.details.find('td[data-plugin="organizations"][data-key="services"]').append(
+															API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
+																remove:API.Auth.validate('custom', 'organizations_services', 4),
+																icon:{details:"fas fa-hand-holding-usd"}
+															})
+														);
+														API.Builder.Timeline.add.service(layout.timeline,dataset.relations.services[id],'hand-holding-usd','success',function(item){
+															if((API.Auth.validate('plugin','services',1))&&(API.Auth.validate('view','details',1,'services'))){
+																item.find('i').first().addClass('pointer');
+																item.find('i').first().off().click(function(){
+																	API.CRUD.read.show({ key:'name',keys:dataset.details.services.dom[item.attr('data-id')], href:"?p=services&v=details&id="+dataset.details.services.dom[item.attr('data-id')].name, modal:true });
+																});
+															}
+														});
+													}
+													API.Plugins.organizations.Events.services(dataset,layout);
+												}
+											}
+											// Update Call Window
+											// Update Widget Window
+											if(API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').length > 0){
+												API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').remove();}
+											}
+											if(callback != null){ callback(dataset,record.output.raw); }
+										}
+									});
+									modal.modal('hide');
+									noteModal.modal('hide');
+								} else { alert('Date and time required!'); }
+							});
+							modal.modal('show');
+						});
+					} else {
+						body.find('textarea').summernote('destroy');
+						body.find('textarea').summernote({
+							toolbar: [
+								['font', ['fontname', 'fontsize']],
+								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+								['color', ['color']],
+								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
+							],
+							height: 250,
+						});
+						alert('Note required!');
+					}
+				});
+				footer.find('button[data-action="end"]').off().click(function(){
+					if(!body.find('textarea').summernote('isEmpty')){
+						call.status = 5;
+						call.note = body.find('textarea').summernote('code');
+						body.find('textarea').summernote('destroy');
+						body.find('textarea').summernote({
+							toolbar: [
+								['font', ['fontname', 'fontsize']],
+								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+								['color', ['color']],
+								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
+							],
+							height: 250,
+						});
+						for(var [id, issue] of Object.entries(dataset.relations.issues)){
+							if(issue.status <= 3){
+								API.Helper.set(call,['issues',issue.id],body.find('div[data-issue="'+issue.id+'"]').find('select').select2('val'));
+							}
+						}
+						API.request('calls','end',{ data:call },function(result){
+							var record = JSON.parse(result);
+							if(record.success != undefined){
+								// Update Browser DB
+								API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
+								API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
+								API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
+								if(API.Helper.isSet(record,['output','note','dom'])){
+									API.Helper.set(dataset,['details','notes','dom',record.output.note.dom.id],record.output.note.dom);
+									API.Helper.set(dataset,['details','notes','raw',record.output.note.raw.id],record.output.note.raw);
+									API.Helper.set(dataset,['relations','notes',record.output.note.dom.id],record.output.note.dom);
+								}
+								if(API.Helper.isSet(record.output,['new'])){
+									API.Helper.set(dataset,['details','calls','dom',record.output.new.output.dom.id],record.output.new.output.dom);
+									API.Helper.set(dataset,['details','calls','raw',record.output.new.output.raw.id],record.output.new.output.raw);
+									API.Helper.set(dataset,['relations','calls',record.output.new.output.dom.id],record.output.new.output.dom);
+								}
+								// Update Organization
+								for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
+									layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
+									layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
+									API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
+									dataset.relations.calls[record.output.raw.id].created = API.Helper.toString(new Date());
+									API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
+										item.find('i').first().addClass('pointer');
+										item.find('i').first().off().click(function(){
+											API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
+										});
+									});
+									if(API.Auth.validate('custom', 'organizations_notes', 1)){
+										if(API.Helper.isSet(record,['output','note','dom'])){
+											API.Builder.Timeline.add.card(layout.timeline,record.output.note.dom,'sticky-note','warning',function(item){
+												item.find('.timeline-footer').remove();
+												if(API.Auth.validate('custom', 'organizations_notes', 4)){
+													$('<a class="time bg-warning pointer"><i class="fas fa-trash-alt"></i></a>').insertAfter(item.find('span.time.bg-warning'));
+													item.find('a.pointer').off().click(function(){
+														API.CRUD.delete.show({ keys:record.output.note.dom,key:'id', modal:true, plugin:'notes' },function(note){
+															item.remove();
+														});
+													});
+												}
+											});
+										}
+									}
+									if(API.Helper.isSet(record.output,['new'])){
+										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id]);
+										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
+											item.find('i').first().addClass('pointer');
+											item.find('i').first().off().click(function(){
+												API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
+											});
+										});
+									}
+									for(var [id, issue] of Object.entries(call.issues)){
+										if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
+											API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
+											dataset.relations.issues[id].created = API.Helper.toString(new Date());
+											layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
+											layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
+												API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+													remove:API.Auth.validate('custom', 'organizations_issues', 4),
+													content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[dataset.details.statuses.raw[issues[record.output.issues[id].id]].name],
+													color:{
+														details:dataset.details.statuses.raw[issues[record.output.issues[id].id]].color
+													},
+													icon:{
+														details:dataset.details.statuses.raw[issues[record.output.issues[id].id]].icon
+													},
+												})
+											);
+											API.Builder.Timeline.add.issue(layout.timeline,dataset.relations.issues[id],'gavel','indigo',function(item){
+												if((API.Auth.validate('plugin','issues',1))&&(API.Auth.validate('view','details',1,'issues'))){
+													item.find('i').first().addClass('pointer');
+													item.find('i').first().off().click(function(){
+														API.CRUD.read.show({ key:'id',keys:dataset.details.issues.dom[item.attr('data-id')], href:"?p=issues&v=details&id="+dataset.details.issues.dom[item.attr('data-id')].id, modal:true });
+													});
+												}
+											});
+											API.Plugins.organizations.Events.issues(dataset,layout);
+										}
+									}
+									if(API.Helper.isSet(record,['output','services'])){
+										for(var [id, service] of Object.entries(record.output.services)){
+											API.Helper.set(dataset,['relations','services',id],record.output.services[id]);
+											dataset.relations.services[id].created = API.Helper.toString(new Date());
+											layout.details.find('td[data-plugin="organizations"][data-key="services"] div[data-id="'+id+'"]').remove();
+											layout.details.find('td[data-plugin="organizations"][data-key="services"]').append(
+												API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
+													remove:API.Auth.validate('custom', 'organizations_services', 4),
+													icon:{details:"fas fa-hand-holding-usd"}
+												})
+											);
+											API.Builder.Timeline.add.service(layout.timeline,dataset.relations.services[id],'hand-holding-usd','success',function(item){
+												if((API.Auth.validate('plugin','services',1))&&(API.Auth.validate('view','details',1,'services'))){
+													item.find('i').first().addClass('pointer');
+													item.find('i').first().off().click(function(){
+														API.CRUD.read.show({ key:'name',keys:dataset.details.services.dom[item.attr('data-id')], href:"?p=services&v=details&id="+dataset.details.services.dom[item.attr('data-id')].name, modal:true });
+													});
+												}
+											});
+										}
+										API.Plugins.organizations.Events.services(dataset,layout);
+									}
+								}
+								// Update Call Window
+								// Update Widget Window
+								if(API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').length > 0){
+									API.Plugins.calls.GUI.toast.element.find('div[data-id="'+call.id+'"]').remove();}
+								}
+								if(callback != null){ callback(dataset,record.output.raw); }
+							}
+						});
+						modal.modal('hide');
+					} else {
+						body.find('textarea').summernote('destroy');
+						body.find('textarea').summernote({
+							toolbar: [
+								['font', ['fontname', 'fontsize']],
+								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+								['color', ['color']],
+								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
+							],
+							height: 250,
+						});
+						alert('Note required!');
 					}
 				});
 				modal.modal('show');
@@ -693,654 +1081,5 @@ API.Plugins.calls = {
 // 			});
 // 		},
 // 	},
-// 	Events:{
-// 		start:function(call, organization, issues = {dom:[],raw:[]}, options = {}, callback = null){
-// 			var callCTN = $('div[data-plugin="calls"][data-id="'+call.raw.id+'"]');
-// 			var organizationCTN = $('div[data-plugin="organizations"][data-id="'+organization.raw.id+'"]');
-// 			var trCTN = $('tr[data-id="'+call.raw.id+'"][data-type="calls"]');
-// 			var widgetCTN = $('[data-type="callWidget"][data-id="'+call.dom.id+'"]').parents('.toastCallWidget');
-// 			if(options instanceof Function){ callback = options; options = {}; }
-// 			call.dom.status = 3;
-// 			call.raw.status = 3;
-// 			API.request('calls','start',{ data:call.raw },function(result){
-// 				var data = JSON.parse(result);
-// 				if(data.success != undefined){
-// 					// Update Call Window
-// 					if(callCTN.length > 0){
-// 						// Adding Call Status to Timeline
-// 						API.Builder.Timeline.add.status(callCTN.find('#calls_timeline'),data.output.status);
-// 						// Update controls
-// 						callCTN.find('#calls_details').find('td[data-plugin="calls"][data-key="status"]').html('<span class="badge bg-'+data.output.status.color+'"><i class="'+data.output.status.icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[data.output.status.name]+'</span>');
-// 						callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').first().hide();
-// 						callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').last().show();
-// 					}
-// 					// Update Organization Window
-// 					if(organizationCTN.length > 0){
-// 						// Update Call Table
-// 						if(trCTN.length > 0){
-// 							trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
-// 							trCTN.parents().eq(4).find('#organizations_calls div table tbody').append(trCTN);
-// 						}
-// 						data.output.dom.created = data.output.raw.modified;
-// 						API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
-// 							item.find('i').first().addClass('pointer');
-// 							item.find('i').first().off().click(function(){
-// 								API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
-// 							});
-// 						});
-// 						// Update controls
-// 						if(((API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Auth.Options.application.showInlineCallsControls.value))||((!API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Settings.customization.showInlineCallsControls.value))){
-// 							organizationCTN.find('[data-id][data-type="calls"]').find('td[data-showInlineCallsControls]').off();
-// 							API.Plugins.organizations.Events.calls(organizationCTN,organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]'),call,organization,issues);
-// 							organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]').find('button[data-action="start"]').parent().hide();
-// 							organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]').find('button[data-action="end"]').parent().show();
-// 						}
-// 					}
-// 					API.Plugins.calls.Widgets.toast(call,organization,issues);
-// 					if(callback != null){ callback({call:call,issues:issues,organization:organization},{callCTN:callCTN,organizationCTN:organizationCTN,trCTN:trCTN,widgetCTN:widgetCTN}); }
-// 				}
-// 			});
-// 		},
-// 		cancel:function(call, organization, issues = {dom:[],raw:[]}, options = {}, callback = null){
-// 			var callCTN = $('div[data-plugin="calls"][data-id="'+call.raw.id+'"]');
-// 			var organizationCTN = $('div[data-plugin="organizations"][data-id="'+organization.raw.id+'"]');
-// 			var trCTN = $('tr[data-id="'+call.raw.id+'"][data-type="calls"]');
-// 			var widgetCTN = $('[data-type="callWidget"][data-id="'+call.dom.id+'"]').parents('.toastCallWidget');
-// 			if(options instanceof Function){ callback = options; options = {}; }
-// 			API.Builder.modal($('body'), {
-// 				title:'Please explain why you are canceling the call',
-// 				icon:'question',
-// 				zindex:'top',
-// 				css:{ dialog:"modal-lg",header:"bg-danger",body:'p-0'},
-// 			}, function(modal){
-// 				modal.on('hide.bs.modal',function(){ modal.remove(); });
-// 				var dialog = modal.find('.modal-dialog');
-// 				var header = modal.find('.modal-header');
-// 				var body = modal.find('.modal-body');
-// 				var footer = modal.find('.modal-footer');
-// 				header.find('button[data-control="hide"]').remove();
-// 				header.find('button[data-control="update"]').remove();
-// 				body.html('<textarea id="cancelCallNote" title="Note" name="note" class="form-control"></textarea>');
-// 				body.find('textarea').summernote({
-// 					toolbar: [
-// 						['font', ['fontname', 'fontsize']],
-// 						['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 						['color', ['color']],
-// 						['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 					],
-// 					height: 250,
-// 				});
-// 				footer.append('<button class="btn btn-danger" data-action="cancel"><i class="fas fa-phone-slash mr-1"></i>Cancel</button>');
-// 				footer.find('button[data-action="cancel"]').click(function(){
-// 					var callUpdate = {};
-// 					for(var [key, value] of Object.entries(call.raw)){ callUpdate[key] = value; };
-// 					if(!body.find('textarea').summernote('isEmpty')){
-// 						callUpdate.note = body.find('textarea').summernote('code');
-// 						API.request('calls','cancel',{ data:callUpdate },function(result){
-// 							var data = JSON.parse(result);
-// 							if(data.success != undefined){
-// 								call.dom.status = 6;
-// 								call.raw.status = 6;
-// 								// Update Call Window
-// 								if(callCTN.length > 0){
-// 									// Adding Call Status to Timeline
-// 									API.Builder.Timeline.add.status(callCTN.find('#calls_timeline'),data.output.status);
-// 									// Update controls
-// 									callCTN.find('#calls_details').find('td[data-plugin="calls"][data-key="status"]').html('<span class="badge bg-'+data.output.status.color+'"><i class="'+data.output.status.icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[data.output.status.name]+'</span>');
-// 									callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').first().hide();
-// 									callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').last().hide();
-// 								}
-// 								// Update Organization Window
-// 								if(organizationCTN.length > 0){
-// 									// Update Call Table
-// 									if(trCTN.length > 0){
-// 										trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
-// 										trCTN.parents().eq(4).find('#organizations_calls div table tbody').append(trCTN);
-// 									}
-// 									// Adding Call Status to Timeline
-// 									data.output.dom.created = data.output.raw.modified;
-// 									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
-// 										item.find('i').first().addClass('pointer');
-// 										item.find('i').first().off().click(function(){
-// 											API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
-// 										});
-// 									});
-// 									// Adding Note
-// 									if(API.Auth.validate('custom', 'organizations_notes', 1)){
-// 									  API.Builder.Timeline.add.card(organizationCTN.find('#organizations_timeline'),data.output.note.dom,'sticky-note','warning',function(item){
-// 									    item.find('.timeline-footer').remove();
-// 									  });
-// 									}
-// 									// Update controls
-// 									if(((API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Auth.Options.application.showInlineCallsControls.value))||((!API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Settings.customization.showInlineCallsControls.value))){
-// 										organizationCTN.find('[data-id][data-type="calls"]').find('td[data-showInlineCallsControls]').off();
-// 										API.Plugins.organizations.Events.calls(organizationCTN,organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]'),call,organization,issues);
-// 										organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]').find('button[data-action="cancel"]').parent().hide();
-// 									}
-// 								}
-// 								if(callback != null){ callback({call:call,issues:issues,organization:organization},{callCTN:callCTN,organizationCTN:organizationCTN,trCTN:trCTN,widgetCTN:widgetCTN}); }
-// 							}
-// 						});
-// 						modal.modal('hide');
-// 						callCTN.parents().eq(3).modal('hide');
-// 					} else {
-// 						body.find('textarea').summernote('destroy');
-// 						body.find('textarea').summernote({
-// 							toolbar: [
-// 								['font', ['fontname', 'fontsize']],
-// 								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 								['color', ['color']],
-// 								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 							],
-// 							height: 250,
-// 						});
-// 						alert('Note required!');
-// 					}
-// 				});
-// 				modal.modal('show');
-// 			});
-// 		},
-// 		reschedule:function(call, organization, issues = {dom:[],raw:[]}, options = {}, callback = null){
-// 			var callCTN = $('div[data-plugin="calls"][data-id="'+call.raw.id+'"]');
-// 			var organizationCTN = $('div[data-plugin="organizations"][data-id="'+organization.raw.id+'"]');
-// 			var trCTN = $('tr[data-id="'+call.raw.id+'"][data-type="calls"]');
-// 			var widgetCTN = $('[data-type="callWidget"][data-id="'+call.dom.id+'"]').parents('.toastCallWidget');
-// 			if(options instanceof Function){ callback = options; options = {}; }
-// 			API.Builder.modal($('body'), {
-// 				title:'Why are you re-scheduling this call',
-// 				icon:'question',
-// 				zindex:'top',
-// 				css:{ dialog:"modal-lg",header:"bg-primary",body:'p-0'},
-// 			}, function(modal){
-// 				modal.on('hide.bs.modal',function(){ modal.remove(); });
-// 				var dialog = modal.find('.modal-dialog');
-// 				var header = modal.find('.modal-header');
-// 				var body = modal.find('.modal-body');
-// 				var footer = modal.find('.modal-footer');
-// 				header.find('button[data-control="hide"]').remove();
-// 				header.find('button[data-control="update"]').remove();
-// 				body.html('<div class="row"></div>');
-// 				API.Builder.input(body.find('div.row'), 'date', null,{plugin:'calls'}, function(input){
-// 					input.wrap('<div class="col-md-6 py-3 pl-4"></div>');
-// 					API.Builder.input(body.find('div.row'), 'time', null,{plugin:'calls'}, function(input){
-// 						input.wrap('<div class="col-md-6 py-3 pr-4"></div>');
-// 						body.find('div.row').append('<div class="col-md-12"><textarea id="rescheduleCallNote" title="Note" name="note" class="form-control"></textarea></div>');
-// 						body.find('textarea').summernote({
-// 							toolbar: [
-// 								['font', ['fontname', 'fontsize']],
-// 								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 								['color', ['color']],
-// 								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 							],
-// 							height: 250,
-// 						});
-// 					});
-// 				});
-// 				footer.append('<button class="btn btn-primary" data-action="reschedule"><i class="fas fa-calendar-day mr-1"></i>Re-Schedule</button>');
-// 				footer.find('button[data-action="reschedule"]').click(function(){
-// 					var callUpdate = {};
-// 					for(var [key, value] of Object.entries(call.raw)){ callUpdate[key] = value; };
-// 					if(!body.find('textarea').summernote('isEmpty')){ callUpdate.note = body.find('textarea').summernote('code'); }
-// 					callUpdate.newdate = body.find('input[data-key="date"]').val();
-// 					callUpdate.newtime = body.find('input[data-key="time"]').val();
-// 					if((callUpdate.newdate != '')&&(callUpdate.newtime != '')){
-// 						API.request('calls','reschedule',{ data:callUpdate },function(result){
-// 							var data = JSON.parse(result);
-// 							if(data.success != undefined){
-// 								call.dom.status = 4;
-// 								call.raw.status = 4;
-// 								// Update Call Window
-// 								if(callCTN.length > 0){
-// 									// Adding Call Status to Timeline
-// 									API.Builder.Timeline.add.status(callCTN.find('#calls_timeline'),data.output.status);
-// 									// Update controls
-// 									callCTN.find('#calls_details').find('td[data-plugin="calls"][data-key="status"]').html('<span class="badge bg-'+data.output.status.color+'"><i class="'+data.output.status.icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[data.output.status.name]+'</span>');
-// 									callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').first().hide();
-// 									callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').last().hide();
-// 								}
-// 								// Update Organization Window
-// 								if(organizationCTN.length > 0){
-// 									// Update Call Table
-// 									if(trCTN.length > 0){
-// 										trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
-// 										trCTN.parents().eq(4).find('#organizations_calls div table tbody').append(trCTN);
-// 									}
-// 									// Adding Call Status to Timeline
-// 									data.output.dom.created = data.output.raw.modified;
-// 									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
-// 										item.find('i').first().addClass('pointer');
-// 										item.find('i').first().off().click(function(){
-// 											API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
-// 										});
-// 									});
-// 									// Adding Note
-// 									if(API.Auth.validate('custom', 'organizations_notes', 1)){
-// 										if(API.Helper.isSet(data,['output','note','dom'])){
-// 										  API.Builder.Timeline.add.card(organizationCTN.find('#organizations_timeline'),data.output.note.dom,'sticky-note','warning',function(item){
-// 										    item.find('.timeline-footer').remove();
-// 										  });
-// 										}
-// 									}
-// 									// Update controls
-// 									if(((API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Auth.Options.application.showInlineCallsControls.value))||((!API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Settings.customization.showInlineCallsControls.value))){
-// 										organizationCTN.find('[data-id][data-type="calls"]').find('td[data-showInlineCallsControls]').off();
-// 										API.Plugins.organizations.Events.calls(organizationCTN,organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]'),call,organization,issues);
-// 										organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]').find('button[data-action="reschedule"]').parent().hide();
-// 									}
-// 									// Adding new Callback
-// 									if(API.Helper.isSet(data.output,['new'])){
-// 										API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.dom,raw:data.output.new.output.raw},organization,issues, true);
-// 									}
-// 								}
-// 								if(callback != null){ callback({call:call,issues:issues,organization:organization},{callCTN:callCTN,organizationCTN:organizationCTN,trCTN:trCTN,widgetCTN:widgetCTN}); }
-// 							}
-// 						});
-// 						modal.modal('hide');
-// 						callCTN.parents().eq(3).modal('hide');
-// 					} else {
-// 						body.find('textarea').summernote('destroy');
-// 						body.find('textarea').summernote({
-// 							toolbar: [
-// 								['font', ['fontname', 'fontsize']],
-// 								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 								['color', ['color']],
-// 								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 							],
-// 							height: 250,
-// 						});
-// 						alert('Date and time required!');
-// 					}
-// 				});
-// 				modal.modal('show');
-// 			});
-// 		},
-// 		end:function(call, organization, issues = {dom:[],raw:[]}, options = {}, callback = null){
-// 			var callCTN = $('div[data-plugin="calls"][data-id="'+call.raw.id+'"]');
-// 			var organizationCTN = $('div[data-plugin="organizations"][data-id="'+organization.raw.id+'"]');
-// 			var trCTN = $('tr[data-id="'+call.raw.id+'"][data-type="calls"]');
-// 			var widgetCTN = $('[data-type="callWidget"][data-id="'+call.raw.id+'"]').parents('.toastCallWidget');
-// 			if(options instanceof Function){ callback = options; options = {}; }
-// 			call.dom.status = 5;
-// 			call.raw.status = 5;
-// 			API.Builder.modal($('body'), {
-// 				title:'Can you detail your call',
-// 				icon:'question',
-// 				zindex:'top',
-// 				css:{ dialog:"modal-lg",header:"bg-danger",body:'p-0'},
-// 			}, function(modal){
-// 				modal.on('hide.bs.modal',function(){ modal.remove(); });
-// 				var dialog = modal.find('.modal-dialog');
-// 				var header = modal.find('.modal-header');
-// 				var body = modal.find('.modal-body');
-// 				var footer = modal.find('.modal-footer');
-// 				header.find('button[data-control="hide"]').remove();
-// 				header.find('button[data-control="update"]').remove();
-// 				body.html('<div class="row"></div>');
-// 				body.find('div.row').append('<div class="col-md-12"><textarea id="rescheduleCallNote" title="Note" name="note" class="form-control"></textarea></div>');
-// 				body.find('textarea').summernote({
-// 					toolbar: [
-// 						['font', ['fontname', 'fontsize']],
-// 						['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 						['color', ['color']],
-// 						['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 					],
-// 					height: 250,
-// 				});
-// 				var side = 'pr', count = 0, top = 'py';
-// 				for(var [issueID, issue] of Object.entries(issues.dom)){
-// 					count++;
-// 					if(count > 2){ top = 'pb'; }
-// 					if(side == 'pl'){ side = 'pr'; } else { side = 'pl'; }
-// 					var issueHTML = '';
-// 					issueHTML += '<div class="col-md-6 '+top+'-3 '+side+'-4" data-issue="'+issue.id+'">';
-// 						issueHTML += '<div class="input-group">';
-// 							issueHTML += '<div class="input-group-prepend">';
-// 								issueHTML += '<span class="input-group-text"><i class="fas fa-gavel mr-1"></i>'+issue.id+' - '+issue.name+'</span>';
-// 							issueHTML += '</div>';
-// 							issueHTML += '<select title="'+issue.id+' - '+issue.name+'" class="form-control select2bs4 select2-hidden-accessible" name="'+issue.id+'">';
-// 							for(var [statusOrder, status] of Object.entries(API.Contents.Statuses.issues)){
-// 								if(issue.status == statusOrder){
-// 									issueHTML += '<option value="'+statusOrder+'" selected="selected">'+API.Contents.Language[status.name]+'</option>';
-// 								} else {
-// 									issueHTML += '<option value="'+statusOrder+'">'+API.Contents.Language[status.name]+'</option>';
-// 								}
-// 							}
-// 							issueHTML += '</select>';
-// 						issueHTML += '</div>';
-// 					issueHTML += '</div>';
-// 					body.find('div.row').append(issueHTML);
-// 				}
-// 				body.find('select').select2({ theme: 'bootstrap4' });
-// 				footer.append('<div class="btn-group"></div>');
-// 				footer.find('div.btn-group').append('<button class="btn btn-primary" data-action="reschedule"><i class="fas fa-calendar-day mr-1"></i>Re-Schedule</button>');
-// 				footer.find('div.btn-group').append('<button class="btn btn-danger" data-action="end"><i class="fas fa-phone-slash mr-1"></i>End</button>');
-// 				footer.find('button[data-action="reschedule"]').click(function(){
-// 					var form = {issues:{}};
-// 					if(!body.find('textarea').summernote('isEmpty')){
-// 						form.note = body.find('textarea').summernote('code');
-// 						body.find('textarea').summernote('destroy');
-// 						body.find('textarea').summernote({
-// 							toolbar: [
-// 								['font', ['fontname', 'fontsize']],
-// 								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 								['color', ['color']],
-// 								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 							],
-// 							height: 250,
-// 						});
-// 						for(var [issueID, issue] of Object.entries(issues.dom)){
-// 							form.issues[issueID] = body.find('div[data-issue="'+issueID+'"]').find('select').select2('val');
-// 						}
-// 						var noteModal = modal;
-// 						API.Builder.modal($('body'), {
-// 							title:'Select a date and time',
-// 							icon:'question',
-// 							zindex:'top',
-// 							css:{ dialog:"modal-lg",header:"bg-primary",body:'p-0'},
-// 						}, function(modal){
-// 							modal.on('hide.bs.modal',function(){ modal.remove(); });
-// 							var dialog = modal.find('.modal-dialog');
-// 							var header = modal.find('.modal-header');
-// 							var body = modal.find('.modal-body');
-// 							var footer = modal.find('.modal-footer');
-// 							header.find('button[data-control="hide"]').remove();
-// 							header.find('button[data-control="update"]').remove();
-// 							body.html('<div class="row"></div>');
-// 							API.Builder.input(body.find('div.row'), 'date', null,{plugin:'calls'}, function(input){
-// 								input.wrap('<div class="col-md-6 py-3 pl-4"></div>');
-// 								API.Builder.input(body.find('div.row'), 'time', null,{plugin:'calls'}, function(input){
-// 									input.wrap('<div class="col-md-6 py-3 pr-4"></div>');
-// 								});
-// 							});
-// 							footer.append('<button class="btn btn-primary" data-action="reschedule"><i class="fas fa-calendar-day mr-1"></i>Re-Schedule</button>');
-// 							footer.find('button[data-action="reschedule"]').click(function(){
-// 								call.dom.status = 4;
-// 								call.raw.status = 4;
-// 								form.date = body.find('input[data-key="date"]').val();
-// 								form.time = body.find('input[data-key="time"]').val();
-// 								if((form.date != '')&&(form.time != '')){
-// 									var callUpdate = {};
-// 									for(var [key, value] of Object.entries(call.raw)){ callUpdate[key] = value; };
-// 									callUpdate.form = form;
-// 									API.request('calls','end',{ data:callUpdate },function(result){
-// 										var data = JSON.parse(result);
-// 										if(data.success != undefined){
-// 											// Update Call Window
-// 											if(callCTN.length > 0){
-// 												// Adding Call Status to Timeline
-// 												API.Builder.Timeline.add.status(callCTN.find('#calls_timeline'),data.output.status);
-// 												// Update controls
-// 												callCTN.find('#calls_details').find('td[data-plugin="calls"][data-key="status"]').html('<span class="badge bg-'+data.output.status.color+'"><i class="'+data.output.status.icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[data.output.status.name]+'</span>');
-// 												callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').first().hide();
-// 												callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').last().hide();
-// 												// Adding Issues
-// 												if(API.Helper.isSet(data.output,['issues'])){
-// 													for(var [issueID, issue] of Object.entries(data.output.issues)){
-// 														issue.created = data.output.note.dom.created;
-// 														issue.status = issue.status.order;
-// 														API.Builder.Timeline.add.issue(callCTN.find('#calls_timeline'),issue);
-// 													}
-// 												}
-// 												// Adding Services
-// 												if(API.Helper.isSet(data.output,['issues'])){
-// 													for(var [serviceID, service] of Object.entries(data.output.services)){
-// 														service.created = data.output.note.dom.created;
-// 														API.Builder.Timeline.add.service(callCTN.find('#calls_timeline'),service);
-// 													}
-// 												}
-// 											}
-// 											// Update Organization Window
-// 											if(organizationCTN.length > 0){
-// 												// Update Call Table
-// 												if(trCTN.length > 0){
-// 													trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
-// 												}
-// 												// Adding Call Status to Timeline
-// 												data.output.dom.created = data.output.raw.modified;
-// 												API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
-// 													item.find('i').first().addClass('pointer');
-// 													item.find('i').first().off().click(function(){
-// 														API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
-// 													});
-// 												});
-// 												// Adding Note
-// 												if(API.Auth.validate('custom', 'organizations_notes', 1)){
-// 													if(API.Helper.isSet(data,['output','note','dom'])){
-// 													  API.Builder.Timeline.add.card(organizationCTN.find('#organizations_timeline'),data.output.note.dom,'sticky-note','warning',function(item){
-// 													    item.find('.timeline-footer').remove();
-// 													  });
-// 													}
-// 												}
-// 												// Update controls
-// 												if(((API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Auth.Options.application.showInlineCallsControls.value))||((!API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Settings.customization.showInlineCallsControls.value))){
-// 													organizationCTN.find('[data-id][data-type="calls"]').find('td[data-showInlineCallsControls]').off();
-// 													API.Plugins.organizations.Events.calls(organizationCTN,organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]'),call,organization,issues);
-// 													organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]').find('button[data-action="end"]').parent().hide();
-// 												}
-// 												// Adding new Callback
-// 												if(API.Helper.isSet(data.output,['new'])){
-// 													API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.dom,raw:data.output.new.output.raw},organization,issues, true);
-// 												}
-// 												// Adding Issues
-// 												if(API.Helper.isSet(data.output,['issues'])){
-// 													for(var [issueID, issue] of Object.entries(data.output.issues)){
-// 														issue.created = data.output.note.dom.created;
-// 														issue.status = issue.status.order;
-// 														API.Builder.Timeline.add.issue(organizationCTN.find('#organizations_timeline'),issue);
-// 													}
-// 												}
-// 												// Adding Services
-// 												if(API.Helper.isSet(data.output,['services'])){
-// 													for(var [serviceID, service] of Object.entries(data.output.services)){
-// 														service.created = data.output.note.dom.created;
-// 														API.Builder.Timeline.add.service(organizationCTN.find('#organizations_timeline'),service);
-// 														var serviceHTML = '';
-// 														serviceHTML += '<div class="btn-group m-1" data-id="'+serviceID+'">';
-// 															serviceHTML += '<button type="button" data-id="'+serviceID+'" data-action="details" class="btn btn-xs btn-primary"><i class="fas fa-hand-holding-usd mr-1"></i>'+service.name+'</button>';
-// 															serviceHTML += '<button type="button" data-id="'+serviceID+'" data-action="unlink" class="btn btn-xs btn-danger"><i class="fas fa-unlink"></i></button>';
-// 														serviceHTML += '</div>';
-// 														organizationCTN.find('td[data-plugin="organizations"][data-key="services"]').find('button[data-action="link"]').before(serviceHTML);
-// 													}
-// 												}
-// 											}
-// 											// Update Widget Window
-// 											if(widgetCTN.length > 0){widgetCTN.remove();}
-// 											if(callback != null){ callback({call:call,issues:issues,organization:organization},{callCTN:callCTN,organizationCTN:organizationCTN,trCTN:trCTN,widgetCTN:widgetCTN}); }
-// 										}
-// 									});
-// 									modal.modal('hide');
-// 									noteModal.modal('hide');
-// 									callCTN.parents().eq(3).modal('hide');
-// 								} else { alert('Date and time required!'); }
-// 							});
-// 							modal.modal('show');
-// 						});
-// 					} else {
-// 						body.find('textarea').summernote('destroy');
-// 						body.find('textarea').summernote({
-// 							toolbar: [
-// 								['font', ['fontname', 'fontsize']],
-// 								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 								['color', ['color']],
-// 								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 							],
-// 							height: 250,
-// 						});
-// 						alert('Note required!');
-// 					}
-// 				});
-// 				footer.find('button[data-action="end"]').click(function(){
-// 					var form = {issues:{}};
-// 					if(!body.find('textarea').summernote('isEmpty')){
-// 						form.note = body.find('textarea').summernote('code');
-// 						for(var [issueID, issue] of Object.entries(issues.dom)){
-// 							form.issues[issueID] = body.find('div[data-issue="'+issueID+'"]').find('select').select2('val');
-// 						}
-// 						var callUpdate = {};
-// 						for(var [key, value] of Object.entries(call.raw)){ callUpdate[key] = value; };
-// 						callUpdate.form = form;
-// 						API.request('calls','end',{ data:callUpdate },function(result){
-// 							var data = JSON.parse(result);
-// 							if(data.success != undefined){
-// 								// Update Call Window
-// 								if(callCTN.length > 0){
-// 									// Adding Call Status to Timeline
-// 									API.Builder.Timeline.add.status(callCTN.find('#calls_timeline'),data.output.status);
-// 									// Update controls
-// 									callCTN.find('#calls_details').find('td[data-plugin="calls"][data-key="status"]').html('<span class="badge bg-'+data.output.status.color+'"><i class="'+data.output.status.icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[data.output.status.name]+'</span>');
-// 									callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').first().hide();
-// 									callCTN.find('#calls_details').find('table').find('thead').find('.btn-group').last().hide();
-// 									// Adding Issues
-// 									if(API.Helper.isSet(data.output,['issues'])){
-// 										for(var [issueID, issue] of Object.entries(data.output.issues)){
-// 											issue.created = data.output.note.dom.created;
-// 											issue.status = issue.status.order;
-// 											API.Builder.Timeline.add.issue(callCTN.find('#calls_timeline'),issue);
-// 										}
-// 									}
-// 									// Adding Services
-// 									if(API.Helper.isSet(data.output,['issues'])){
-// 										for(var [serviceID, service] of Object.entries(data.output.services)){
-// 											service.created = data.output.note.dom.created;
-// 											API.Builder.Timeline.add.service(callCTN.find('#calls_timeline'),service);
-// 										}
-// 									}
-// 								}
-// 								// Update Organization Window
-// 								if(organizationCTN.length > 0){
-// 									// Update Call Table
-// 									if(trCTN.length > 0){
-// 										trCTN.find('td').eq(1).html('<span class="mr-1 badge bg-'+API.Contents.Statuses.calls[call.raw.status].color+'"><i class="'+API.Contents.Statuses.calls[call.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[call.raw.status].name]+'</span>');
-// 									}
-// 									// Adding Call Status to Timeline
-// 									data.output.dom.created = data.output.raw.modified;
-// 									API.Builder.Timeline.add.call(organizationCTN.find('#organizations_timeline'),data.output.dom,'phone-square','olive',function(item){
-// 										item.find('i').first().addClass('pointer');
-// 										item.find('i').first().off().click(function(){
-// 											API.CRUD.read.show({ key:{id:data.output.dom.id}, title:data.output.dom.phone, href:"?p=calls&v=details&id="+data.output.dom.id, modal:true });
-// 										});
-// 									});
-// 									// Adding Note
-// 									if(API.Auth.validate('custom', 'organizations_notes', 1)){
-// 										if(API.Helper.isSet(data,['output','note','dom'])){
-// 											API.Builder.Timeline.add.card(organizationCTN.find('#organizations_timeline'),data.output.note.dom,'sticky-note','warning',function(item){
-// 												item.find('.timeline-footer').remove();
-// 											});
-// 										}
-// 									}
-// 									// Update controls
-// 									if(((API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Auth.Options.application.showInlineCallsControls.value))||((!API.Helper.isSet(API.Contents.Auth.Options,['application','showInlineCallsControls','value']))&&(API.Contents.Settings.customization.showInlineCallsControls.value))){
-// 										organizationCTN.find('[data-id][data-type="calls"]').find('td[data-showInlineCallsControls]').off();
-// 										API.Plugins.organizations.Events.calls(organizationCTN,organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]'),call,organization,issues);
-// 										organizationCTN.find('[data-id="'+call.dom.id+'"][data-type="calls"]').find('button[data-action="end"]').parent().hide();
-// 									}
-// 									// Adding new Callback
-// 									if(API.Helper.isSet(data.output,['new'])){
-// 										API.Plugins.organizations.GUI.calls.add(organizationCTN,{dom:data.output.new.output.dom,raw:data.output.new.output.raw},organization,issues, true);
-// 									}
-// 									// Adding Issues
-// 									if(API.Helper.isSet(data.output,['issues'])){
-// 										for(var [issueID, issue] of Object.entries(data.output.issues)){
-// 											issue.created = data.output.note.dom.created;
-// 											issue.status = issue.status.order;
-// 											API.Builder.Timeline.add.issue(organizationCTN.find('#organizations_timeline'),issue);
-// 										}
-// 									}
-// 									// Adding Services
-// 									if(API.Helper.isSet(data.output,['issues'])){
-// 										if(API.Helper.isSet(data.output,['services'])){
-// 											for(var [serviceID, service] of Object.entries(data.output.services)){
-// 												service.created = data.output.note.dom.created;
-// 												API.Builder.Timeline.add.service(organizationCTN.find('#organizations_timeline'),service);
-// 												var serviceHTML = '';
-// 												serviceHTML += '<div class="btn-group m-1" data-id="'+serviceID+'">';
-// 													serviceHTML += '<button type="button" data-id="'+serviceID+'" data-action="details" class="btn btn-xs btn-primary"><i class="fas fa-hand-holding-usd mr-1"></i>'+service.name+'</button>';
-// 													serviceHTML += '<button type="button" data-id="'+serviceID+'" data-action="unlink" class="btn btn-xs btn-danger"><i class="fas fa-unlink"></i></button>';
-// 												serviceHTML += '</div>';
-// 												organizationCTN.find('td[data-plugin="organizations"][data-key="services"]').find('button[data-action="link"]').before(serviceHTML);
-// 											}
-// 										}
-// 									}
-// 								}
-// 								// Update Widget Window
-// 								if(widgetCTN.length > 0){widgetCTN.remove();}
-// 								if(callback != null){ callback({call:call,issues:issues,organization:organization},{callCTN:callCTN,organizationCTN:organizationCTN,trCTN:trCTN,widgetCTN:widgetCTN}); }
-// 							}
-// 						});
-// 						modal.modal('hide');
-// 						callCTN.parents().eq(3).modal('hide');
-// 					} else {
-// 						body.find('textarea').summernote('destroy');
-// 						body.find('textarea').summernote({
-// 							toolbar: [
-// 								['font', ['fontname', 'fontsize']],
-// 								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 								['color', ['color']],
-// 								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 							],
-// 							height: 250,
-// 						});
-// 						alert('Note required!');
-// 					}
-// 				});
-// 				modal.modal('show');
-// 			});
-// 		},
-// 	},
-// 	Widgets:{
-// 		toast:function(call, organization, issues = {dom:[],raw:[]}, options = {}, callback = null){
-// 			if(options instanceof Function){ callback = options; options = {}; }
-// 			if((call.raw.assigned_to == API.Contents.Auth.User.id)&&(((API.Helper.isSet(API.Contents.Auth.Options,['application','showCallWidget','value']))&&(API.Contents.Auth.Options.application.showCallWidget.value))||((!API.Helper.isSet(API.Contents.Auth.Options,['application','showCallWidget','value']))&&(API.Contents.Settings.customization.showCallWidget.value)))){
-// 				var toastHTML = '';
-// 				toastHTML += '<div class="row" data-type="callWidget" data-id="'+call.dom.id+'">';
-// 					toastHTML += '<div class="col-8">';
-// 						toastHTML += '<a class="btn btn-sm btn-block btn-success"><i class="fas fa-phone-alt mr-2"></i>'+call.dom.phone+'</a>';
-// 					toastHTML += '</div>';
-// 					toastHTML += '<div class="col-4">';
-// 						toastHTML += '<button type="button" class="btn btn-sm btn-block btn-danger"><i class="fas fa-phone-slash mr-2"></i>End</button>';
-// 					toastHTML += '</div>';
-// 				toastHTML += '</div>';
-// 				if($('[data-type="callWidget"][data-id="'+call.dom.id+'"]').length <= 0){
-// 					if(call.raw.status == 3){
-// 						var title = 'Active Call - ';
-// 						if((typeof organization.dom.name !== 'undefined')&&(organization.dom.name != '')&&(organization.dom.name != null)){ title += organization.dom.name; }
-// 						if((typeof call.dom.contact !== 'undefined')&&(call.dom.contact != '')&&(call.dom.contact != null)){ title += ' - '+call.dom.contact; }
-// 						$(document).Toasts('create', {
-// 							icon: 'fas fa-phone-square-alt fa-lg',
-// 							fade: true,
-// 							close: false,
-// 							class: 'toastCallWidget',
-// 							title: title,
-// 							position: 'bottomRight',
-// 							body: toastHTML
-// 						});
-// 						var checkWidgets = setInterval(function() {
-// 							if($('[data-type="callWidget"]').length > 0){
-// 								clearInterval(checkWidgets);
-// 								var checkWidget = setInterval(function() {
-// 									if($('[data-type="callWidget"][data-id="'+call.dom.id+'"]').length > 0){
-// 										clearInterval(checkWidget);
-// 										var toast = $('[data-type="callWidget"][data-id="'+call.dom.id+'"]').parents('.toastCallWidget');
-// 										toast.find('a').off().click(function(){
-// 											API.CRUD.read.show({ key:'name',keys:organization.dom, href:"?p=organizations&v=details&id="+organization.dom.name, modal:true });
-// 										});
-// 										toast.find('button').off().click(function(){
-// 											API.Plugins.calls.Events.end(call,organization,issues,function(data,objects){
-// 												call.raw.status = data.call.raw.status;
-// 												call.dom.status = data.call.dom.status;
-// 											});
-// 										});
-// 										if(callback != null){ callback(toast); }
-// 									}
-// 								}, 100);
-// 							}
-// 						}, 100);
-// 					}
-// 				}
-// 			}
-// 		},
-// 	},
-// 	extend:{},
-// }
 
 API.Plugins.calls.init();
