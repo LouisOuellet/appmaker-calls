@@ -127,7 +127,25 @@ class callsAPI extends CRUDAPI {
 					}
 				}
 				if($data['note']){
-					$return['output']['note'] = $this->note('calls',['content' => $data['note']]);
+					$return['output']['note'] = $this->Auth->create('notes',[
+						'content' => $data['note'],
+						'by' => $this->Auth->User['id'],
+						'relationship' => 'organizations',
+						'link_to' => $call['organization'],
+					]);
+					$return['output']['note'] = $this->Auth->read('notes',$return['output']['note'])->all()[0];
+					$this->createRelationship([
+						'relationship_1' => 'organizations',
+						'link_to_1' => $call['organization'],
+						'relationship_2' => 'notes',
+						'link_to_2' => $return['output']['note']['id'],
+					]);
+					$this->createRelationship([
+						'relationship_1' => 'calls',
+						'link_to_1' => $call['id'],
+						'relationship_2' => 'notes',
+						'link_to_2' => $return['output']['note']['id'],
+					]);
 				}
 				if($call['status'] == 4){ $return['output']['new'] = $this->create('calls',$call); }
 				// Return
