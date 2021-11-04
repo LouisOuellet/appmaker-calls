@@ -152,6 +152,8 @@ API.Plugins.calls = {
 						layout.content.calls.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 						layout.content.callbacks.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 						API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.raw.id]);
+						var now = new Date();
+						record.output.raw.created = now;
 						API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.raw.id],'phone-square','olive',function(item){
 							item.find('i').first().addClass('pointer');
 							item.find('i').first().off().click(function(){
@@ -178,6 +180,8 @@ API.Plugins.calls = {
 						layout.content.calls.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 						layout.content.callbacks.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 						API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.raw.id]);
+						var now = new Date();
+						record.output.raw.created = now;
 						API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.raw.id],'phone-square','olive',function(item){
 							item.find('i').first().addClass('pointer');
 							item.find('i').first().off().click(function(){
@@ -250,6 +254,8 @@ API.Plugins.calls = {
 									layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 									layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
 									API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
+									var now = new Date();
+									record.output.raw.created = now;
 									API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
 										item.find('i').first().addClass('pointer');
 										item.find('i').first().off().click(function(){
