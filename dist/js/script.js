@@ -400,32 +400,34 @@ API.Plugins.calls = {
 					height: 250,
 				});
 				var side = 'pr', count = 0, top = 'py';
-				for(var [id, issue] of Object.entries(dataset.relations.issues)){
-					if(issue.status <= 3){
-						API.Helper.set(call,['issues',issue.id],issue.status);
-						count++;
-						if(count > 2){ top = 'pb'; }
-						if(side == 'pl'){ side = 'pr'; } else { side = 'pl'; }
-						var html = '';
-						html += '<div class="col-md-6 '+top+'-3 '+side+'-4" data-issue="'+issue.id+'">';
-							html += '<div class="input-group">';
-								html += '<div class="input-group-prepend">';
-									html += '<span class="input-group-text"><i class="fas fa-gavel mr-1"></i>'+issue.id+' - '+issue.name+'</span>';
-								html += '</div>';
-								html += '<select title="'+issue.id+' - '+issue.name+'" class="form-control select2bs4 select2-hidden-accessible" name="'+issue.id+'">';
-								for(var [statusOrder, status] of Object.entries(API.Contents.Statuses.issues)){
-									if(issue.status <= statusOrder){
-										if(issue.status == statusOrder){
-											html += '<option value="'+statusOrder+'" selected="selected">'+API.Contents.Language[status.name]+'</option>';
-										} else {
-											html += '<option value="'+statusOrder+'">'+API.Contents.Language[status.name]+'</option>';
+				if(API.Helper.isSet(dataset,['relations','issues'])){
+					for(var [id, issue] of Object.entries(dataset.relations.issues)){
+						if(issue.status <= 3){
+							API.Helper.set(call,['issues',issue.id],issue.status);
+							count++;
+							if(count > 2){ top = 'pb'; }
+							if(side == 'pl'){ side = 'pr'; } else { side = 'pl'; }
+							var html = '';
+							html += '<div class="col-md-6 '+top+'-3 '+side+'-4" data-issue="'+issue.id+'">';
+								html += '<div class="input-group">';
+									html += '<div class="input-group-prepend">';
+										html += '<span class="input-group-text"><i class="fas fa-gavel mr-1"></i>'+issue.id+' - '+issue.name+'</span>';
+									html += '</div>';
+									html += '<select title="'+issue.id+' - '+issue.name+'" class="form-control select2bs4 select2-hidden-accessible" name="'+issue.id+'">';
+									for(var [statusOrder, status] of Object.entries(API.Contents.Statuses.issues)){
+										if(issue.status <= statusOrder){
+											if(issue.status == statusOrder){
+												html += '<option value="'+statusOrder+'" selected="selected">'+API.Contents.Language[status.name]+'</option>';
+											} else {
+												html += '<option value="'+statusOrder+'">'+API.Contents.Language[status.name]+'</option>';
+											}
 										}
 									}
-								}
-								html += '</select>';
+									html += '</select>';
+								html += '</div>';
 							html += '</div>';
-						html += '</div>';
-						body.find('div.row').append(issueHTML);
+							body.find('div.row').append(issueHTML);
+						}
 					}
 				}
 				body.find('select').select2({ theme: 'bootstrap4' });
