@@ -98,6 +98,30 @@ API.Plugins.calls = {
 							if(data.this.dom.contact != ''){ options.field = "contact"; } else { options.field = "organization"; }
 							if(API.Helper.isSet(options,['td'])){ delete options.td; }
 							API.GUI.Layouts.details.data(data,layout,options);
+							// Status
+							if(API.Helper.isSet(API.Plugins,['statuses']) && API.Auth.validate('custom', 'calls_status', 1)){
+								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="statuses">'+API.Contents.Language['Status']+'</button>');
+								options.field = "schedule";
+								options.td = '';
+								options.td += '<td data-plugin="calls" data-key="'+options.field+'">';
+									if(API.Helper.isSet(API.Contents.Statuses,['calls',data.this.raw.status])){
+										options.td += '<span class="badge bg-'+API.Contents.Statuses.calls[data.this.raw.status].color+'">';
+											options.td += '<i class="fas fa-calendar-day mr-1"></i>'+data.this.dom.date+API.Contents.Language[' at ']+data.this.dom.time;
+										options.td += '</span>';
+									}
+								options.td += '</td>';
+								API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
+							}
+							// Schedule
+							options.field = "schedule";
+							options.td = '';
+							options.td += '<td data-plugin="organizations" data-key="'+options.field+'">';
+								options.td += '<span class="badge bg-primary">';
+									options.td += '<i class="'+API.Contents.Statuses.calls[data.this.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Statuses.calls[data.this.raw.status].name+'';
+								options.td += '</span>';
+							options.td += '<strong><i class="fas fa-envelope mr-1"></i></strong><a href="mailto:'+data.this.dom.email+'">'+data.this.dom.email+'</a>';
+							options.td += '</td>';
+							API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
 							// // Business Number
 							// if(API.Auth.validate('custom', 'calls_business_num', 1)){
 							// 	options.field = "business_num";
@@ -128,20 +152,6 @@ API.Plugins.calls = {
 							// 	options.td += '</td>';
 							// 	API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
 							// }
-							// Status
-							if(API.Helper.isSet(API.Plugins,['statuses']) && API.Auth.validate('custom', 'calls_status', 1)){
-								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="statuses">'+API.Contents.Language['Status']+'</button>');
-								options.field = "status";
-								options.td = '';
-								options.td += '<td data-plugin="calls" data-key="'+options.field+'">';
-									if(API.Helper.isSet(API.Contents.Statuses,['calls',data.this.raw.status])){
-										options.td += '<span class="badge bg-'+API.Contents.Statuses.calls[data.this.raw.status].color+'">';
-											options.td += '<i class="'+API.Contents.Statuses.calls[data.this.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Statuses.calls[data.this.raw.status].name+'';
-										options.td += '</span>';
-									}
-								options.td += '</td>';
-								API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
-							}
 							// options.field = "address";
 							// options.td = '<td data-plugin="calls" data-key="address">'+data.this.dom.address+', '+data.this.dom.city+', '+data.this.dom.zipcode+'</td>';
 							// API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
