@@ -284,6 +284,13 @@ API.Plugins.calls = {
 											],
 											height: 250,
 										});
+										var html = '';
+										html += '<nav class="navbar navbar-expand-lg navbar-dark bg-dark">';
+											html += '<form class="form-inline my-2 my-lg-0 ml-auto">';
+												html += '<button class="btn btn-warning my-2 my-sm-0" type="button" data-action="reply"><i class="fas fa-sticky-note mr-1"></i>'+API.Contents.Language['Add Note']+'</button>';
+											html += '</form>';
+										html += '</nav>';
+										content.append(html);
 									}
 								});
 								API.Plugins.calls.Events.notes(data,layout);
