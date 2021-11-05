@@ -540,7 +540,6 @@ API.Plugins.calls = {
 							content:layout.content.notes.find('textarea').summernote('code'),
 							relationship:'calls',
 							link_to:dataset.this.dom.id,
-							status:dataset.this.raw.status,
 						};
 						layout.content.notes.find('textarea').val('');
 						layout.content.notes.find('textarea').summernote('code','');
