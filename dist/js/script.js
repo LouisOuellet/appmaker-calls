@@ -94,10 +94,10 @@ API.Plugins.calls = {
 									});
 								});
 							}
-							// // Name
-							// options.field = "name";
-							// if(API.Helper.isSet(options,['td'])){ delete options.td; }
-							// API.GUI.Layouts.details.data(data,layout,options);
+							// Name
+							if(data.this.dom.contact != ''){ options.field = "contact"; } else { options.field = "organization"; }
+							if(API.Helper.isSet(options,['td'])){ delete options.td; }
+							API.GUI.Layouts.details.data(data,layout,options);
 							// // Business Number
 							// if(API.Auth.validate('custom', 'calls_business_num', 1)){
 							// 	options.field = "business_num";
