@@ -341,14 +341,15 @@ API.Plugins.calls = {
 										}
 									}
 									if(API.Helper.isSet(record.output,['new'])){
-										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id]);
+										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
+											API.Plugins.organizations.Events.calls(dataset,layout);
+										});
 										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 											item.find('i').first().addClass('pointer');
 											item.find('i').first().off().click(function(){
 												API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 											});
 										});
-										API.Plugins.organizations.Events.calls(dataset,layout);
 									}
 								}
 								// Update Call Window
@@ -524,14 +525,15 @@ API.Plugins.calls = {
 													}
 												}
 												if(API.Helper.isSet(record.output,['new'])){
-													API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id]);
+													API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
+														API.Plugins.organizations.Events.calls(dataset,layout);
+													});
 													API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 														item.find('i').first().addClass('pointer');
 														item.find('i').first().off().click(function(){
 															API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 														});
 													});
-													API.Plugins.organizations.Events.calls(dataset,layout);
 												}
 												for(var [id, issue] of Object.entries(call.issues)){
 													if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
@@ -704,14 +706,15 @@ API.Plugins.calls = {
 										}
 									}
 									if(API.Helper.isSet(record.output,['new'])){
-										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id]);
+										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
+											API.Plugins.organizations.Events.calls(dataset,layout);
+										});
 										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 											item.find('i').first().addClass('pointer');
 											item.find('i').first().off().click(function(){
 												API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 											});
 										});
-										API.Plugins.organizations.Events.calls(dataset,layout);
 									}
 									for(var [id, issue] of Object.entries(call.issues)){
 										if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
