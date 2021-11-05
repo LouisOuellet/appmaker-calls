@@ -1173,12 +1173,10 @@ API.Plugins.calls = {
 									html += '</div>';
 									html += '<select title="'+issue.id+' - '+issue.name+'" class="form-control select2bs4 select2-hidden-accessible" name="'+issue.id+'">';
 									for(var [statusOrder, status] of Object.entries(API.Contents.Statuses.issues)){
-										if(issue.status <= statusOrder){
-											if(issue.status == statusOrder){
-												html += '<option value="'+statusOrder+'" selected="selected">'+API.Contents.Language[status.name]+'</option>';
-											} else {
-												html += '<option value="'+statusOrder+'">'+API.Contents.Language[status.name]+'</option>';
-											}
+										if(issue.status == statusOrder){
+											html += '<option value="'+statusOrder+'" selected="selected">'+API.Contents.Language[status.name]+'</option>';
+										} else {
+											html += '<option value="'+statusOrder+'">'+API.Contents.Language[status.name]+'</option>';
 										}
 									}
 									html += '</select>';
