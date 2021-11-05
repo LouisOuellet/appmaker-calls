@@ -312,7 +312,8 @@ class callsAPI extends CRUDAPI {
 			if(!is_array($data)){ $data = json_decode($data, true); }
 			$this->Auth->setLimit(0);
 			// Load Call
-			$get = parent::get($request, $data);
+			var_dump($data);
+			$get = parent::get('calls', $data);
 			// Init Organization
 			$API = new organizationsAPI;
 			$organizations = [];
