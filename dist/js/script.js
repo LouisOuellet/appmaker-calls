@@ -154,7 +154,7 @@ API.Plugins.calls = {
 										API.Plugins.calls.Events.cancel(data.organization.output,data.this.raw);
 									});
 								});
-								API.GUI.Layouts.details.control(data,layout,{color:"primary",icon:"fas fa-calendar-day",text:API.Contents.Language["Reschedule"]},function(data,layout,button){
+								API.GUI.Layouts.details.control(data,layout,{color:"primary",icon:"fas fa-calendar-day",text:API.Contents.Language["Re-Schedule"]},function(data,layout,button){
 									button.off().click(function(){
 										API.Plugins.calls.Events.reschedule(data.organization.output,data.this.raw);
 									});
