@@ -342,7 +342,7 @@ API.Plugins.calls = {
 									}
 									if(API.Helper.isSet(record.output,['new'])){
 										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
-											API.Plugins.organizations.Events.calls(dataset,layout);
+											API.Plugins.organizations.Events.callbacks(dataset,layout);
 										});
 										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 											item.find('i').first().addClass('pointer');
@@ -526,7 +526,7 @@ API.Plugins.calls = {
 												}
 												if(API.Helper.isSet(record.output,['new'])){
 													API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
-														API.Plugins.organizations.Events.calls(dataset,layout);
+														API.Plugins.organizations.Events.callbacks(dataset,layout);
 													});
 													API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 														item.find('i').first().addClass('pointer');
@@ -707,7 +707,7 @@ API.Plugins.calls = {
 									}
 									if(API.Helper.isSet(record.output,['new'])){
 										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
-											API.Plugins.organizations.Events.calls(dataset,layout);
+											API.Plugins.organizations.Events.callbacks(dataset,layout);
 										});
 										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 											item.find('i').first().addClass('pointer');
