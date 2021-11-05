@@ -537,49 +537,51 @@ API.Plugins.calls = {
 														});
 													});
 												}
-												for(var [id, issue] of Object.entries(call.issues)){
-													if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
-														API.Helper.set(dataset,['details','issues','dom',id],record.output.issues[id]);
-														API.Helper.set(dataset,['details','issues','raw',id],record.output.issues[id]);
-														API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
-														dataset.relations.issues[id].created = API.Helper.toString(new Date());
-														layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
-														if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){
-															layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
-																API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
-																	remove:API.Auth.validate('custom', 'organizations_issues', 4),
-																	content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
-																	color:{
-																		details:API.Contents.Statuses.issues[record.output.issues[id].status].color
-																	},
-																	icon:{
-																		details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
-																	},
-																})
-															);
-														} else {
-															layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').before(
-																API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
-																	remove:API.Auth.validate('custom', 'organizations_issues', 4),
-																	content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
-																	color:{
-																		details:API.Contents.Statuses.issues[record.output.issues[id].status].color
-																	},
-																	icon:{
-																		details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
-																	},
-																})
-															);
-														}
-														API.Builder.Timeline.add.issue(layout.timeline,dataset.relations.issues[id],'gavel','indigo',function(item){
-															if((API.Auth.validate('plugin','issues',1))&&(API.Auth.validate('view','details',1,'issues'))){
-																item.find('i').first().addClass('pointer');
-																item.find('i').first().off().click(function(){
-																	API.CRUD.read.show({ key:'id',keys:dataset.details.issues.dom[item.attr('data-id')], href:"?p=issues&v=details&id="+dataset.details.issues.dom[item.attr('data-id')].id, modal:true });
-																});
+												if(typeof call.issues !== 'undefined'){
+													for(var [id, issue] of Object.entries(call.issues)){
+														if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
+															API.Helper.set(dataset,['details','issues','dom',id],record.output.issues[id]);
+															API.Helper.set(dataset,['details','issues','raw',id],record.output.issues[id]);
+															API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
+															dataset.relations.issues[id].created = API.Helper.toString(new Date());
+															layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
+															if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){
+																layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
+																	API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+																		remove:API.Auth.validate('custom', 'organizations_issues', 4),
+																		content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
+																		color:{
+																			details:API.Contents.Statuses.issues[record.output.issues[id].status].color
+																		},
+																		icon:{
+																			details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
+																		},
+																	})
+																);
+															} else {
+																layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').before(
+																	API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+																		remove:API.Auth.validate('custom', 'organizations_issues', 4),
+																		content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
+																		color:{
+																			details:API.Contents.Statuses.issues[record.output.issues[id].status].color
+																		},
+																		icon:{
+																			details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
+																		},
+																	})
+																);
 															}
-														});
-														API.Plugins.organizations.Events.issues(dataset,layout);
+															API.Builder.Timeline.add.issue(layout.timeline,dataset.relations.issues[id],'gavel','indigo',function(item){
+																if((API.Auth.validate('plugin','issues',1))&&(API.Auth.validate('view','details',1,'issues'))){
+																	item.find('i').first().addClass('pointer');
+																	item.find('i').first().off().click(function(){
+																		API.CRUD.read.show({ key:'id',keys:dataset.details.issues.dom[item.attr('data-id')], href:"?p=issues&v=details&id="+dataset.details.issues.dom[item.attr('data-id')].id, modal:true });
+																	});
+																}
+															});
+															API.Plugins.organizations.Events.issues(dataset,layout);
+														}
 													}
 												}
 												if(API.Helper.isSet(record,['output','services'])){
@@ -720,49 +722,51 @@ API.Plugins.calls = {
 											});
 										});
 									}
-									for(var [id, issue] of Object.entries(call.issues)){
-										if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
-											API.Helper.set(dataset,['details','issues','dom',id],record.output.issues[id]);
-											API.Helper.set(dataset,['details','issues','raw',id],record.output.issues[id]);
-											API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
-											dataset.relations.issues[id].created = API.Helper.toString(new Date());
-											layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
-											if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){
-												layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
-													API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
-														remove:API.Auth.validate('custom', 'organizations_issues', 4),
-														content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
-														color:{
-															details:API.Contents.Statuses.issues[record.output.issues[id].status].color
-														},
-														icon:{
-															details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
-														},
-													})
-												);
-											} else {
-												layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').before(
-													API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
-														remove:API.Auth.validate('custom', 'organizations_issues', 4),
-														content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
-														color:{
-															details:API.Contents.Statuses.issues[record.output.issues[id].status].color
-														},
-														icon:{
-															details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
-														},
-													})
-												);
-											}
-											API.Builder.Timeline.add.issue(layout.timeline,dataset.relations.issues[id],'gavel','indigo',function(item){
-												if((API.Auth.validate('plugin','issues',1))&&(API.Auth.validate('view','details',1,'issues'))){
-													item.find('i').first().addClass('pointer');
-													item.find('i').first().off().click(function(){
-														API.CRUD.read.show({ key:'id',keys:dataset.details.issues.dom[item.attr('data-id')], href:"?p=issues&v=details&id="+dataset.details.issues.dom[item.attr('data-id')].id, modal:true });
-													});
+									if(typeof call.issues !== 'undefined'){
+										for(var [id, issue] of Object.entries(call.issues)){
+											if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
+												API.Helper.set(dataset,['details','issues','dom',id],record.output.issues[id]);
+												API.Helper.set(dataset,['details','issues','raw',id],record.output.issues[id]);
+												API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
+												dataset.relations.issues[id].created = API.Helper.toString(new Date());
+												layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
+												if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){
+													layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
+														API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+															remove:API.Auth.validate('custom', 'organizations_issues', 4),
+															content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
+															color:{
+																details:API.Contents.Statuses.issues[record.output.issues[id].status].color
+															},
+															icon:{
+																details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
+															},
+														})
+													);
+												} else {
+													layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').before(
+														API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+															remove:API.Auth.validate('custom', 'organizations_issues', 4),
+															content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
+															color:{
+																details:API.Contents.Statuses.issues[record.output.issues[id].status].color
+															},
+															icon:{
+																details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
+															},
+														})
+													);
 												}
-											});
-											API.Plugins.organizations.Events.issues(dataset,layout);
+												API.Builder.Timeline.add.issue(layout.timeline,dataset.relations.issues[id],'gavel','indigo',function(item){
+													if((API.Auth.validate('plugin','issues',1))&&(API.Auth.validate('view','details',1,'issues'))){
+														item.find('i').first().addClass('pointer');
+														item.find('i').first().off().click(function(){
+															API.CRUD.read.show({ key:'id',keys:dataset.details.issues.dom[item.attr('data-id')], href:"?p=issues&v=details&id="+dataset.details.issues.dom[item.attr('data-id')].id, modal:true });
+														});
+													}
+												});
+												API.Plugins.organizations.Events.issues(dataset,layout);
+											}
 										}
 									}
 									if(API.Helper.isSet(record,['output','services'])){
