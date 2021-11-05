@@ -480,7 +480,6 @@ API.Plugins.calls = {
 								if((call.date != '')&&(call.time != '')){
 									API.request('calls','end',{ data:call },function(result){
 										var record = JSON.parse(result);
-										console.log(record);
 										if(record.success != undefined){
 											// Update Browser DB
 											API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
@@ -531,6 +530,7 @@ API.Plugins.calls = {
 															API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 														});
 													});
+													API.Plugins.organizations.Events.calls(dataset,layout);
 												}
 												for(var [id, issue] of Object.entries(call.issues)){
 													if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
