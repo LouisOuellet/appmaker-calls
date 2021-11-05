@@ -689,7 +689,6 @@ API.Plugins.calls = {
 									}
 									for(var [id, issue] of Object.entries(call.issues)){
 										if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
-											record.output.issues[id].status = status;
 											API.Helper.set(dataset,['details','issues','dom',id],record.output.issues[id]);
 											API.Helper.set(dataset,['details','issues','raw',id],record.output.issues[id]);
 											API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
