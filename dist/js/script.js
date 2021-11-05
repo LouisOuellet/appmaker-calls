@@ -533,24 +533,38 @@ API.Plugins.calls = {
 												}
 												for(var [id, issue] of Object.entries(call.issues)){
 													if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
-														record.output.issues[id].status = status;
 														API.Helper.set(dataset,['details','issues','dom',id],record.output.issues[id]);
 														API.Helper.set(dataset,['details','issues','raw',id],record.output.issues[id]);
 														API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
 														dataset.relations.issues[id].created = API.Helper.toString(new Date());
 														layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
-														layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
-															API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
-																remove:API.Auth.validate('custom', 'organizations_issues', 4),
-																content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
-																color:{
-																	details:API.Contents.Statuses.issues[record.output.issues[id].status].color
-																},
-																icon:{
-																	details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
-																},
-															})
-														);
+														if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){}
+															layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
+																API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+																	remove:API.Auth.validate('custom', 'organizations_issues', 4),
+																	content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
+																	color:{
+																		details:API.Contents.Statuses.issues[record.output.issues[id].status].color
+																	},
+																	icon:{
+																		details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
+																	},
+																})
+															);
+														} else {
+															layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').before(
+																API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+																	remove:API.Auth.validate('custom', 'organizations_issues', 4),
+																	content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
+																	color:{
+																		details:API.Contents.Statuses.issues[record.output.issues[id].status].color
+																	},
+																	icon:{
+																		details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
+																	},
+																})
+															);
+														}
 														API.Builder.Timeline.add.issue(layout.timeline,dataset.relations.issues[id],'gavel','indigo',function(item){
 															if((API.Auth.validate('plugin','issues',1))&&(API.Auth.validate('view','details',1,'issues'))){
 																item.find('i').first().addClass('pointer');
@@ -561,7 +575,6 @@ API.Plugins.calls = {
 														});
 														API.Plugins.organizations.Events.issues(dataset,layout);
 													}
-												}
 												if(API.Helper.isSet(record,['output','services'])){
 													for(var [id, service] of Object.entries(record.output.services)){
 														API.Helper.set(dataset,['details','services','dom',id],record.output.services[id]);
@@ -694,22 +707,33 @@ API.Plugins.calls = {
 											API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
 											dataset.relations.issues[id].created = API.Helper.toString(new Date());
 											layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
-											console.log(API.Contents.Statuses.issues);
-											console.log(record.output.issues);
-											console.log(id);
-											console.log(record.output.issues[id].status);
-											layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
-												API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
-													remove:API.Auth.validate('custom', 'organizations_issues', 4),
-													content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
-													color:{
-														details:API.Contents.Statuses.issues[record.output.issues[id].status].color
-													},
-													icon:{
-														details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
-													},
-												})
-											);
+											if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){}
+												layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
+													API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+														remove:API.Auth.validate('custom', 'organizations_issues', 4),
+														content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
+														color:{
+															details:API.Contents.Statuses.issues[record.output.issues[id].status].color
+														},
+														icon:{
+															details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
+														},
+													})
+												);
+											} else {
+												layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').before(
+													API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
+														remove:API.Auth.validate('custom', 'organizations_issues', 4),
+														content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
+														color:{
+															details:API.Contents.Statuses.issues[record.output.issues[id].status].color
+														},
+														icon:{
+															details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
+														},
+													})
+												);
+											}
 											API.Builder.Timeline.add.issue(layout.timeline,dataset.relations.issues[id],'gavel','indigo',function(item){
 												if((API.Auth.validate('plugin','issues',1))&&(API.Auth.validate('view','details',1,'issues'))){
 													item.find('i').first().addClass('pointer');
