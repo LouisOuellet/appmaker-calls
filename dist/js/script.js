@@ -880,7 +880,7 @@ API.Plugins.calls = {
 		},
 		create:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
-			for(var [id, layout] of Object.entries(API.Contents.layouts.calls[dataset.this.raw.id])){
+			for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 				layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 				layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
 				API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
@@ -905,7 +905,7 @@ API.Plugins.calls = {
 					API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);
 					API.Helper.set(dataset,['details','calls','raw',record.output.raw.id],record.output.raw);
 					API.Helper.set(dataset,['relations','calls',record.output.dom.id],record.output.dom);
-					for(var [id, layout] of Object.entries(API.Contents.layouts.calls[record.output.raw.organization])){
+					for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[record.output.raw.organization])){
 						layout.content.calls.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 						layout.content.callbacks.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 						API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[record.output.raw.id]);
@@ -966,7 +966,7 @@ API.Plugins.calls = {
 									API.Helper.set(dataset,['details','notes','raw',record.output.note.raw.id],record.output.note.raw);
 									API.Helper.set(dataset,['relations','notes',record.output.note.dom.id],record.output.note.dom);
 								}
-								for(var [id, layout] of Object.entries(API.Contents.layouts.calls[record.output.raw.organization])){
+								for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[record.output.raw.organization])){
 									layout.content.calls.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 									layout.content.callbacks.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 									API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[record.output.raw.id]);
@@ -1071,7 +1071,7 @@ API.Plugins.calls = {
 									API.Helper.set(dataset,['relations','calls',record.output.new.output.dom.id],record.output.new.output.dom);
 								}
 								// Update Organization
-								for(var [id, layout] of Object.entries(API.Contents.layouts.calls[dataset.this.raw.id])){
+								for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 									layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 									layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
 									API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
@@ -1257,7 +1257,7 @@ API.Plugins.calls = {
 												API.Helper.set(dataset,['relations','calls',record.output.new.output.dom.id],record.output.new.output.dom);
 											}
 											// Update Organization
-											for(var [id, layout] of Object.entries(API.Contents.layouts.calls[dataset.this.raw.id])){
+											for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 												layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 												layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
 												API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
@@ -1442,7 +1442,7 @@ API.Plugins.calls = {
 									API.Helper.set(dataset,['relations','calls',record.output.new.output.dom.id],record.output.new.output.dom);
 								}
 								// Update Organization
-								for(var [id, layout] of Object.entries(API.Contents.layouts.calls[dataset.this.raw.id])){
+								for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 									layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 									layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
 									API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
