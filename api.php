@@ -131,13 +131,14 @@ class callsAPI extends CRUDAPI {
 					}
 				}
 				if($data['note']){
-					$return['output']['note'] = $this->Auth->create('notes',[
+					$return['output']['note']['raw'] = $this->Auth->create('notes',[
 						'content' => $data['note'],
 						'by' => $this->Auth->User['id'],
 						'relationship' => 'organizations',
 						'link_to' => $call['organization'],
 					]);
-					$return['output']['note'] = $this->Auth->read('notes',$return['output']['note'])->all()[0];
+					$return['output']['note']['raw'] = $this->Auth->read('notes',$return['output']['note']['raw'])->all()[0];
+					$return['output']['note']['dom'] = $this->convertToDOM($return['output']['note']['raw']);
 					$this->createRelationship([
 						'relationship_1' => 'organizations',
 						'link_to_1' => $call['organization'],
