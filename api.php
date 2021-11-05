@@ -311,7 +311,80 @@ class callsAPI extends CRUDAPI {
 		if(isset($data)){
 			if(!is_array($data)){ $data = json_decode($data, true); }
 			$this->Auth->setLimit(0);
+			// Load Call
 			$get = parent::get($request, $data);
+			// Init Organization
+			$API = new organizationsAPI;
+			$organizations = [];
+			$get['output']['organization'] = $API->get('organizations',['id' => $get['output']['this']['raw']['organization']]);
+			// Load Contacts
+			if(isset($get['success'],$get['output']['details']['contacts']['raw'])){
+				foreach($get['output']['details']['contacts']['raw'] as $contact){
+					$get['output']['details']['contacts']['subscriptions']['raw'][$contact['id']] = [];
+					$get['output']['details']['contacts']['subscriptions']['dom'][$contact['id']] = [];
+					$subscriptions = $this->Auth->query('SELECT * FROM `subscriptions` WHERE `relationship` = ? AND `link_to` = ?','users',$contact['id'])->fetchAll();
+					if($subscriptions != null){
+						$subscriptions = $subscriptions->all();
+						foreach ($subscriptions as $subscription) {
+							array_push($get['output']['details']['contacts']['subscriptions']['raw'][$contact['id']],$subscription);
+							array_push($get['output']['details']['contacts']['subscriptions']['dom'][$contact['id']],$this->convertToDOM($subscription));
+						}
+					}
+				}
+			}
+			// Load Users
+			if(isset($get['success'],$get['output']['this']['raw']['assigned_to'])){
+				if(!isset($get['output']['details']['users'])){ $get['output']['details']['users'] = ['dom' => [],'raw' => []]; }
+				foreach(explode(";",trim($get['output']['this']['raw']['assigned_to'],";")) as $userID){
+					if(!isset($get['output']['details']['users']['raw'][$userID])){
+						$get['output']['details']['users']['raw'][$userID] = $this->Auth->read('users',$userID)->all()[0];
+						$get['output']['details']['users']['dom'][$userID] = $this->convertToDOM($get['output']['details']['users']['raw'][$userID]);
+					}
+				}
+			}
+			// Load Statuses
+			foreach(['issues','organizations','calls','containers'] as $statusType){
+				foreach($this->Auth->read('statuses',$statusType,'relationship')->all() as $status){
+					if(!isset($get['output']['details']['statuses']['raw'][$status['id']])){
+						$get['output']['details']['statuses']['raw'][$status['id']] = $status;
+						$get['output']['details']['statuses']['dom'][$status['id']] = $this->convertToDOM($get['output']['details']['statuses']['raw'][$status['id']]);
+					}
+				}
+			}
+			// Build Relations
+			foreach($get['output']['relationships'] as $rid => $relations){
+				foreach($relations as $uid => $relation){
+					if(isset($get['output']['details'][$relation['relationship']]['dom'][$relation['link_to']])){
+						$get['output']['relations'][$relation['relationship']][$relation['link_to']] = $get['output']['details'][$relation['relationship']]['dom'][$relation['link_to']];
+						$get['output']['relations'][$relation['relationship']][$relation['link_to']]['owner'] = $relation['owner'];
+						$get['output']['relations'][$relation['relationship']][$relation['link_to']]['created'] = $relation['created'];
+						if(isset($relation['statuses'])){
+							$get['output']['relations'][$relation['relationship']][$relation['link_to']]['status'] = $get['output']['details']['statuses']['dom'][$relation['statuses']]['order'];
+						}
+						if(!isset($get['output']['relations'][$relation['relationship']][$relation['link_to']]['name']) && isset($get['output']['relations'][$relation['relationship']][$relation['link_to']]['first_name'])){
+							$get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] = '';
+							if($get['output']['relations'][$relation['relationship']][$relation['link_to']]['first_name'] != ''){
+								if($get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] != ''){
+									$get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] .= ' ';
+								}
+								$get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] .= $get['output']['relations'][$relation['relationship']][$relation['link_to']]['first_name'];
+							}
+							if($get['output']['relations'][$relation['relationship']][$relation['link_to']]['middle_name'] != ''){
+								if($get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] != ''){
+									$get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] .= ' ';
+								}
+								$get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] .= $get['output']['relations'][$relation['relationship']][$relation['link_to']]['middle_name'];
+							}
+							if($get['output']['relations'][$relation['relationship']][$relation['link_to']]['last_name'] != ''){
+								if($get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] != ''){
+									$get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] .= ' ';
+								}
+								$get['output']['relations'][$relation['relationship']][$relation['link_to']]['name'] .= $get['output']['relations'][$relation['relationship']][$relation['link_to']]['last_name'];
+							}
+						}
+					}
+				}
+			}
 			return $get;
 		}
 	}
