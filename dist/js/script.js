@@ -128,23 +128,23 @@ API.Plugins.calls = {
 							// 	options.td += '</td>';
 							// 	API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
 							// }
-							// // Status
-							// if(API.Helper.isSet(API.Plugins,['statuses']) && API.Auth.validate('custom', 'calls_status', 1)){
-							// 	if(!data.this.dom.isActive){
-							// 		layout.details.prepend('<div class="ribbon-wrapper ribbon-xl"><div class="ribbon bg-danger text-xl">Inactive</div></div>');
-							// 	}
-							// 	layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="statuses">'+API.Contents.Language['Status']+'</button>');
-							// 	options.field = "status";
-							// 	options.td = '';
-							// 	options.td += '<td data-plugin="calls" data-key="'+options.field+'">';
-							// 		if(API.Helper.isSet(API.Contents.Statuses,['calls',data.this.raw.status])){
-							// 			options.td += '<span class="badge bg-'+API.Contents.Statuses.organizations[data.this.raw.status].color+'">';
-							// 				options.td += '<i class="'+API.Contents.Statuses.organizations[data.this.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Statuses.organizations[data.this.raw.status].name+'';
-							// 			options.td += '</span>';
-							// 		}
-							// 	options.td += '</td>';
-							// 	API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
-							// }
+							// Status
+							if(API.Helper.isSet(API.Plugins,['statuses']) && API.Auth.validate('custom', 'calls_status', 1)){
+								if(!data.this.dom.isActive){
+									layout.details.prepend('<div class="ribbon-wrapper ribbon-xl"><div class="ribbon bg-danger text-xl">Inactive</div></div>');
+								}
+								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="statuses">'+API.Contents.Language['Status']+'</button>');
+								options.field = "status";
+								options.td = '';
+								options.td += '<td data-plugin="calls" data-key="'+options.field+'">';
+									if(API.Helper.isSet(API.Contents.Statuses,['calls',data.this.raw.status])){
+										options.td += '<span class="badge bg-'+API.Contents.Statuses.calls[data.this.raw.status].color+'">';
+											options.td += '<i class="'+API.Contents.Statuses.calls[data.this.raw.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Statuses.calls[data.this.raw.status].name+'';
+										options.td += '</span>';
+									}
+								options.td += '</td>';
+								API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
+							}
 							// options.field = "address";
 							// options.td = '<td data-plugin="calls" data-key="address">'+data.this.dom.address+', '+data.this.dom.city+', '+data.this.dom.zipcode+'</td>';
 							// API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
@@ -307,7 +307,7 @@ API.Plugins.calls = {
 							// 				html += '<form class="form-inline my-2 my-lg-0 ml-auto">';
 							// 					if(API.Helper.isSet(API.Plugins,['statuses']) && API.Auth.validate('custom', 'calls_status', 1)){
 							// 						html += '<select class="form-control mr-sm-2" name="status" style="width: 150px;">';
-							// 						for(var [order, status] of Object.entries(API.Contents.Statuses.organizations)){
+							// 						for(var [order, status] of Object.entries(API.Contents.Statuses.calls)){
 							// 							html += '<option value="'+order+'">'+API.Helper.ucfirst(status.name)+'</option>'
 							// 						}
 							// 						html += '</select>';
