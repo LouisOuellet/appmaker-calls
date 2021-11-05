@@ -139,8 +139,34 @@ API.Plugins.calls = {
 							} else { options.field = "organization"; }
 							if(API.Helper.isSet(options,['td'])){ delete options.td; }
 							API.GUI.Layouts.details.data(data,layout,options);
-							// Organizations
+							// Organization
 							layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="organizations">'+API.Contents.Language['Organizations']+'</button>');
+							// Controls
+							if(data.this.raw.status <= 2){
+								// Callback
+								API.GUI.Layouts.details.control(data,layout,{color:"success",icon:"fas fa-phone",text:API.Contents.Language["Start"]},function(data,layout,button){
+									button.off().click(function(){
+										API.Plugins.calls.Events.start(data.organization.output,data.this.raw);
+									});
+								});
+								API.GUI.Layouts.details.control(data,layout,{color:"danger",icon:"fas fa-phone-slash",text:API.Contents.Language["Cancel"]},function(data,layout,button){
+									button.off().click(function(){
+										API.Plugins.calls.Events.cancel(data.organization.output,data.this.raw);
+									});
+								});
+								API.GUI.Layouts.details.control(data,layout,{color:"primary",icon:"fas fa-calendar-day",text:API.Contents.Language["Reschedule"]},function(data,layout,button){
+									button.off().click(function(){
+										API.Plugins.calls.Events.reschedule(data.organization.output,data.this.raw);
+									});
+								});
+							} else if(data.this.raw.status <= 3) {
+								// Call
+								API.GUI.Layouts.details.control(data,layout,{color:"danger",icon:"fas fa-phone-slash",text:API.Contents.Language["End"]},function(data,layout,button){
+									button.off().click(function(){
+										API.Plugins.calls.Events.end(data.organization.output,data.this.raw);
+									});
+								});
+							}
 							// Status
 							if(API.Helper.isSet(API.Plugins,['statuses']) && API.Auth.validate('custom', 'calls_status', 1)){
 								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="statuses">'+API.Contents.Language['Status']+'</button>');
@@ -1562,326 +1588,5 @@ API.Plugins.calls = {
 		},
 	},
 }
-// 		details:function(){
-// 			var container = $('div[data-plugin="calls"][data-id]').last();
-// 			var url = new URL(window.location.href);
-// 			var id = url.searchParams.get("id"), values = '', main = container.find('#calls_main_card'), timeline = container.find('#calls_timeline'),details = container.find('#calls_details').find('table');
-// 			if(container.parent('.modal-body').length > 0){
-// 				var thisModal = container.parent('.modal-body').parent().parent().parent();
-// 				thisModal.find('.modal-header').find('.btn-group').find('[data-control="update"]').remove();
-// 			}
-// 			API.request(url.searchParams.get("p"),'get',{data:{id:id}},function(result){
-// 				var dataset = JSON.parse(result);
-// 				if(dataset.success != undefined){
-// 					container.attr('data-id',dataset.output.this.raw.id);
-// 					var tr = $('tr[data-id="'+dataset.output.this.raw.id+'"][data-type="calls"]');
-// 					var organizationCTN = tr.parents().eq(9);
-// 					API.GUI.insert(dataset.output.this.dom);
-// 					// Create Call Widget
-// 					if(typeof thisModal !== 'undefined'){
-// 						thisModal.on('hide.bs.modal',function(){
-// 							// API.Plugins.calls.Widgets.toast(dataset.output.this,{dom:dataset.output.details.calls.dom[dataset.output.this.raw.organization],raw:dataset.output.details.calls.raw[dataset.output.this.raw.organization]},dataset.output.details.issues);
-// 						});
-// 					}
-// 					// Subscribe
-// 					if(API.Helper.isSet(dataset.output.details,['users','raw',API.Contents.Auth.User.id])){
-// 						main.find('.card-header').find('button[data-action="unsubscribe"]').show();
-// 					} else { main.find('.card-header').find('button[data-action="subscribe"]').show(); }
-// 					main.find('.card-header').find('button[data-action="unsubscribe"]').click(function(){
-// 						API.request(url.searchParams.get("p"),'unsubscribe',{data:{id:dataset.output.this.raw.id}},function(answer){
-// 							var subscription = JSON.parse(answer);
-// 							if(subscription.success != undefined){
-// 								main.find('.card-header').find('button[data-action="unsubscribe"]').hide();
-// 								main.find('.card-header').find('button[data-action="subscribe"]').show();
-// 								container.find('#calls_timeline').find('[data-type=user][data-id="'+API.Contents.Auth.User.id+'"]').remove();
-// 							}
-// 						});
-// 					});
-// 					main.find('.card-header').find('button[data-action="subscribe"]').click(function(){
-// 						API.request(url.searchParams.get("p"),'subscribe',{data:{id:dataset.output.this.raw.id}},function(answer){
-// 							var subscription = JSON.parse(answer);
-// 							if(subscription.success != undefined){
-// 								main.find('.card-header').find('button[data-action="subscribe"]').hide();
-// 								main.find('.card-header').find('button[data-action="unsubscribe"]').show();
-// 								var sub = {
-// 									id:API.Contents.Auth.User.id,
-// 									created:subscription.output.relationship.created,
-// 									email:API.Contents.Auth.User.email,
-// 								};
-// 								API.Builder.Timeline.add.subscription(container.find('#calls_timeline'),sub,'user','lightblue');
-// 							}
-// 						});
-// 					});
-// 					// Name
-// 					if((dataset.output.this.raw.contact != null)&&(dataset.output.this.raw.contact != '')&&(API.Helper.isSet(dataset.output.details,['users','dom',dataset.output.this.raw.contact]))){
-// 						var contact = dataset.output.details.users.dom[dataset.output.this.raw.contact];
-// 							contact.name = '';
-// 							if(contact.first_name != ''){ contact.name += contact.first_name}
-// 							if(contact.middle_name != ''){ if(contact.name != ''){contact.name += ' ';} contact.name += contact.middle_name}
-// 							if(contact.last_name != ''){ if(contact.name != ''){contact.name += ' ';} contact.name += contact.last_name}
-// 							if(contact.job_title != ''){ if(contact.name != ''){contact.name += ' - ';} contact.name += contact.job_title}
-// 						container.find('#calls_details').find('td[data-plugin="calls"][data-key="name"]').html(contact.name);
-// 					} else {
-// 						if(API.Helper.isSet(dataset.output.details,['calls'])){
-// 							container.find('#calls_details').find('td[data-plugin="calls"][data-key="name"]').html(dataset.output.details.calls.dom[Object.keys(dataset.output.details.calls.dom)[0]].name);
-// 						}
-// 					}
-// 					// Status
-// 					if(API.Auth.validate('custom', 'calls_status', 1)){
-// 						container.find('#calls_details').find('td[data-plugin="calls"][data-key="status"]').parent().show();
-// 						container.find('#calls_details').find('td[data-plugin="calls"][data-key="status"]').html('<span class="badge bg-'+API.Contents.Statuses.calls[dataset.output.this.dom.status].color+'"><i class="'+API.Contents.Statuses.calls[dataset.output.this.dom.status].icon+' mr-1" aria-hidden="true"></i>'+API.Contents.Language[API.Contents.Statuses.calls[dataset.output.this.dom.status].name]+'</span>');
-// 						container.find('#calls_notes select[name="status"]').show();
-// 						for(var [statusOrder, statusInfo] of Object.entries(API.Contents.Statuses.calls)){
-// 							container.find('#calls_notes select[name="status"]').append(new Option(API.Contents.Language[statusInfo.name], statusOrder));
-// 						}
-// 						container.find('#calls_notes select[name="status"]').val(dataset.output.this.dom.status);
-// 					} else {
-// 						container.find('#calls_details').find('td[data-plugin="calls"][data-key="status"]').parent().remove();
-// 						container.find('#calls_notes select[name="status"]').remove();
-// 					}
-// 					// Schedule
-// 					if(API.Auth.validate('custom', 'calls_schedule', 1)){
-// 						container.find('#calls_details').find('td[data-plugin="calls"][data-key="schedule"]').parent().show();
-// 						container.find('#calls_details').find('td[data-plugin="calls"][data-key="schedule"]').html('<span class="badge bg-primary"><i class="fas fa-calendar-day mr-1" aria-hidden="true"></i>'+dataset.output.this.dom.date+' at '+dataset.output.this.dom.time+'</span>');
-// 					} else { container.find('#calls_details').find('td[data-plugin="calls"][data-key="schedule"]').parent().remove(); }
-// 					// Phone
-// 					if(API.Auth.validate('custom', 'calls_phone', 1)){
-// 						container.find('#calls_details').find('td[data-plugin="calls"][data-key="phone"]').parent().show();
-// 						container.find('#calls_details').find('td[data-plugin="calls"][data-key="phone"]').html('<a class="btn btn-xs btn-success" href="tel:'+dataset.output.this.dom.phone+'"><i class="fas fa-phone mr-1"></i>'+dataset.output.this.dom.phone+'</a>');
-// 					} else { container.find('#calls_details').find('td[data-plugin="calls"][data-key="phone"]').parent().remove(); }
-// 					// User
-// 					if(API.Auth.validate('custom', 'calls_users', 1)){
-// 						container.find('#calls_details').find('a[data-plugin="calls"][data-key="user"]').parent().parent().show();
-// 						container.find('#calls_details').find('td[data-plugin="calls"][data-key="user"]').html('<button class="btn btn-xs btn-primary"><i class="fas fa-user mr-1"></i>'+dataset.output.this.dom.assigned_to+'</button>');
-// 					} else { container.find('#calls_details').find('a[data-plugin="calls"][data-key="user"]').parent().remove(); }
-// 					// Created
-// 					container.find('#calls_created').find('time').attr('datetime',dataset.output.this.raw.created.replace(/ /g, "T"));
-// 					container.find('#calls_created').find('time').html(dataset.output.this.raw.created);
-// 					container.find('#calls_created').find('time').timeago();
-// 					// Issues
-// 					for(var [relationshipsID, relations] of Object.entries(dataset.output.relationships)){
-// 						for(var [key, relation] of Object.entries(relations)){
-// 							if(relation.relationship == 'issues'){
-// 								dataset.output.details.issues.dom[relation.link_to].status = dataset.output.details.statuses.dom[relation.statuses].order;
-// 								dataset.output.details.issues.raw[relation.link_to].status = dataset.output.details.statuses.raw[relation.statuses].order;
-// 							}
-// 						}
-// 					}
-// 					// Notes
-// 					if((API.Auth.validate('custom', 'calls_notes', 2))&&(dataset.output.this.raw.status < 4)){
-// 						container.find('#calls_main_card_tabs .nav-item .nav-link[href="#calls_notes"]').parent().show();
-// 						container.find('#calls_notes_textarea').find('textarea').summernote({
-// 							toolbar: [
-// 								['font', ['fontname', 'fontsize']],
-// 								['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 								['color', ['color']],
-// 								['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 							],
-// 							height: 250,
-// 						});
-// 						container.find('#calls_notes').find('button[data-action="reply"]').click(function(){
-// 							var note = {
-// 								by:API.Contents.Auth.User.id,
-// 								content:container.find('#calls_notes_textarea').find('textarea').summernote('code'),
-// 								relationship:'calls',
-// 								link_to:dataset.output.this.dom.id,
-// 							};
-// 							container.find('#calls_notes_textarea').find('textarea').val('');
-// 							container.find('#calls_notes_textarea').find('textarea').summernote('code','');
-// 							container.find('#calls_notes_textarea').find('textarea').summernote('destroy');
-// 							container.find('#calls_notes_textarea').find('textarea').summernote({
-// 								toolbar: [
-// 									['font', ['fontname', 'fontsize']],
-// 									['style', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-// 									['color', ['color']],
-// 									['paragraph', ['style', 'ul', 'ol', 'paragraph', 'height']],
-// 								],
-// 								height: 250,
-// 							});
-// 							if((note.content != "")&&(note.content != "<p><br></p>")&&(note.content != "<p></p>")&&(note.content != "<br>")){
-// 								API.request('calls','note',{data:note},function(result){
-// 									var data = JSON.parse(result);
-// 									if(data.success != undefined){
-// 										API.Builder.Timeline.add.card(container.find('#calls_timeline'),data.output.note.dom,'sticky-note','warning',function(item){
-// 											item.find('.timeline-footer').remove();
-// 										});
-// 									}
-// 								});
-// 								container.find('#calls_main_card_tabs a[href="#calls"]').tab('show');
-// 							} else { alert('Note is empty'); }
-// 						});
-// 					} else {
-// 						container.find('#calls_main_card_tabs .nav-item .nav-link[href="#calls_notes"]').parent().remove();
-// 						container.find('#calls_notes').remove();
-// 					}
-// 					// Creating Timeline
-// 					// Adding items
-// 					for(var [rid, relations] of Object.entries(dataset.output.relationships)){
-// 						for(var [uid, relation] of Object.entries(relations)){
-// 							if(API.Helper.isSet(dataset.output.details,[relation.relationship,'dom',relation.link_to])){
-// 								var detail = {};
-// 								for(var [key, value] of Object.entries(dataset.output.details[relation.relationship].dom[relation.link_to])){ detail[key] = value; }
-// 								detail.owner = relation.owner; detail.created = relation.created;
-// 								switch(relation.relationship){
-// 									case"status":
-// 									case"statuses":
-// 										if((API.Auth.validate('custom', 'calls_status', 1))||(detail.owner == API.Contents.Auth.User.username)){
-// 											API.Builder.Timeline.add.status(container.find('#calls_timeline'),detail);
-// 										}
-// 										break;
-// 									case"calls":
-// 										if((API.Auth.validate('custom', 'calls_calls', 1))||(detail.owner == API.Contents.Auth.User.username)){
-// 											API.Builder.Timeline.add.client(container.find('#calls_timeline'),detail,'building');
-// 										}
-// 										break;
-// 									case"contacts":
-// 									case"users":
-// 										detail.name = '';
-// 										if((detail.first_name != '')&&(detail.first_name != null)){ if(detail.name != ''){detail.name += ' ';} detail.name += detail.first_name; }
-// 										if((detail.middle_name != '')&&(detail.middle_name != null)){ if(detail.name != ''){detail.name += ' ';} detail.name += detail.middle_name; }
-// 										if((detail.last_name != '')&&(detail.last_name != null)){ if(detail.name != ''){detail.name += ' ';} detail.name += detail.last_name; }
-// 										if(detail.isContact){
-// 											if((API.Auth.validate('custom', 'calls_contacts', 1))||(detail.owner == API.Contents.Auth.User.username)){
-// 												API.Builder.Timeline.add.contact(container.find('#calls_timeline'),detail,'address-card');
-// 											}
-// 										} else if((API.Auth.validate('custom', 'calls_users', 1))||(detail.owner == API.Contents.Auth.User.username)){
-// 											API.Builder.Timeline.add.user(container.find('#calls_timeline'),detail,'user','lightblue');
-// 										}
-// 										break;
-// 									case"services":
-// 										if((API.Auth.validate('custom', 'calls_services', 1))||(detail.owner == API.Contents.Auth.User.username)){
-// 											API.Builder.Timeline.add.service(container.find('#calls_timeline'),detail);
-// 										}
-// 										break;
-// 									case"issues":
-// 										if((API.Auth.validate('custom', 'calls_issues', 1))||(detail.owner == API.Contents.Auth.User.username)){
-// 											if(API.Helper.isSet(dataset.output.details.statuses.raw,[relation.statuses,'order'])){
-// 												detail.status = dataset.output.details.statuses.raw[relation.statuses].order;
-// 												API.Builder.Timeline.add.issue(container.find('#calls_timeline'),detail);
-// 											}
-// 										}
-// 										break;
-// 									case"notes":
-// 										if((API.Auth.validate('custom', 'calls_notes', 1))||(detail.owner == API.Contents.Auth.User.username)){
-// 											API.Builder.Timeline.add.card(container.find('#calls_timeline'),detail,'sticky-note','warning',function(item){
-// 												item.find('.timeline-footer').remove();
-// 											});
-// 										}
-// 										break;
-// 									default:
-// 										console.log(relation.relationship);
-// 										API.Builder.Timeline.add.card(container.find('#calls_timeline'),detail);
-// 										break;
-// 								}
-// 							}
-// 						}
-// 					}
-// 					// Radio Selector
-// 					var timelineHTML = '';
-// 					timelineHTML += '<div class="btn-group btn-group-toggle" data-toggle="buttons">';
-// 						timelineHTML += '<label class="btn btn-primary pointer active" data-table="all">';
-// 							timelineHTML += '<input type="radio" name="options" autocomplete="off" checked>All';
-// 						timelineHTML += '</label>';
-// 						for(var [table, content] of Object.entries(dataset.output.details)){
-// 							if(API.Auth.validate('custom', 'calls_'+table, 1)){
-// 								timelineHTML += '<label class="btn btn-primary pointer" data-table="'+table+'">';
-// 									timelineHTML += '<input type="radio" name="options" autocomplete="off">'+API.Helper.ucfirst(table);
-// 								timelineHTML += '</label>';
-// 							} else { console.log('calls_'+table); }
-// 						}
-// 					timelineHTML += '</div>';
-// 					container.find('#calls_timeline').find('.time-label').first().html(timelineHTML);
-// 					container.find('#calls_timeline').find('.time-label').first().find('label').each(function(){
-// 						switch($(this).attr('data-table')){
-// 							case"notes":var icon = 'sticky-note';break;
-// 							case"comments":var icon = 'comment';break;
-// 							case"statuses":var icon = 'info';break;
-// 							case"users":var icon = 'user';break;
-// 							case"calls":var icon = 'building';break;
-// 							case"contacts":var icon = 'address-card';break;
-// 							case"calls":var icon = 'phone-square';break;
-// 							case"services":var icon = 'hand-holding-usd';break;
-// 							case"issues":var icon = 'gavel';break;
-// 							default:var icon = '';break;
-// 						}
-// 						if((icon != '')&&(typeof icon !== 'undefined')){
-// 							$(this).click(function(){
-// 								container.find('#calls_timeline').find('[data-type]').hide();
-// 								container.find('#calls_timeline').find('[data-type="'+icon+'"]').show();
-// 							});
-// 						} else {
-// 							$(this).click(function(){
-// 								container.find('#calls_timeline').find('[data-type]').show();
-// 							});
-// 						}
-// 					});
-// 					// Controls
-// 					var callHTML = '';
-// 					callHTML += '<thead>';
-// 						callHTML += '<tr>';
-// 							callHTML += '<th colspan="2">';
-// 								callHTML += '<div class="btn-group btn-block" style="display:none">';
-// 									callHTML += '<button class="btn btn-success" data-action="start"><i class="fas fa-phone mr-1"></i>Start</button>';
-// 									callHTML += '<button class="btn btn-danger" data-action="cancel"><i class="fas fa-phone-slash mr-1"></i>Cancel</button>';
-// 									callHTML += '<button class="btn btn-primary" data-action="reschedule"><i class="fas fa-calendar-day mr-1"></i>Re-Schedule</button>';
-// 								callHTML += '</div>';
-// 								callHTML += '<div class="btn-group btn-block" style="display:none">';
-// 									callHTML += '<button class="btn btn-danger" data-action="end"><i class="fas fa-phone-slash mr-1"></i>End</button>';
-// 								callHTML += '</div>';
-// 							callHTML += '</th>';
-// 						callHTML += '</tr>';
-// 					callHTML += '</thead>';
-// 					container.find('#calls_details').find('table').prepend(callHTML);
-// 					if(dataset.output.this.raw.status <= 2){
-// 						container.find('#calls_details').find('table').find('thead').find('.btn-group').first().show();
-// 					}
-// 					if(dataset.output.this.raw.status == 3){
-// 						container.find('#calls_details').find('table').find('thead').find('.btn-group').last().show();
-// 					}
-// 					if(dataset.output.this.raw.status >= 4){
-// 						container.find('#calls_details').find('table').find('thead').remove();
-// 					}
-// 					// Controls Events
-// 					container.find('#calls_details').find('table').find('thead').find('button').each(function(){
-// 						var control = $(this), action = $(this).attr('data-action');
-// 						switch(action){
-// 							case"start":
-// 								control.click(function(){
-// 									API.Plugins.calls.Events.start(dataset.output.this,{dom:dataset.output.details.calls.dom[dataset.output.this.raw.organization],raw:dataset.output.details.calls.raw[dataset.output.this.raw.organization]},dataset.output.details.issues,function(data,objects){
-// 										dataset.output.this.raw.status = data.call.raw.status;
-// 										dataset.output.this.dom.status = data.call.dom.status;
-// 									});
-// 								});
-// 								break;
-// 							case"cancel":
-// 								control.click(function(){
-// 									API.Plugins.calls.Events.cancel(dataset.output.this,{dom:dataset.output.details.calls.dom[dataset.output.this.raw.organization],raw:dataset.output.details.calls.raw[dataset.output.this.raw.organization]},dataset.output.details.issues,function(data,objects){
-// 										dataset.output.this.raw.status = data.call.raw.status;
-// 										dataset.output.this.dom.status = data.call.dom.status;
-// 									});
-// 								});
-// 								break;
-// 							case"reschedule":
-// 								control.click(function(){
-// 									API.Plugins.calls.Events.reschedule(dataset.output.this,{dom:dataset.output.details.calls.dom[dataset.output.this.raw.organization],raw:dataset.output.details.calls.raw[dataset.output.this.raw.organization]},dataset.output.details.issues,function(data,objects){
-// 										dataset.output.this.raw.status = data.call.raw.status;
-// 										dataset.output.this.dom.status = data.call.dom.status;
-// 									});
-// 								});
-// 								break;
-// 							case"end":
-// 								control.click(function(){
-// 									API.Plugins.calls.Events.end(dataset.output.this,{dom:dataset.output.details.calls.dom[dataset.output.this.raw.organization],raw:dataset.output.details.calls.raw[dataset.output.this.raw.organization]},dataset.output.details.issues,function(data,objects){
-// 										dataset.output.this.raw.status = data.call.raw.status;
-// 										dataset.output.this.dom.status = data.call.dom.status;
-// 									});
-// 								});
-// 								break;
-// 						}
-// 					});
-// 				}
-// 			});
-// 		},
-// 	},
 
 API.Plugins.calls.init();
