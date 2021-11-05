@@ -538,7 +538,7 @@ API.Plugins.calls = {
 														API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
 														dataset.relations.issues[id].created = API.Helper.toString(new Date());
 														layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
-														if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){}
+														if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){
 															layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
 																API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
 																	remove:API.Auth.validate('custom', 'organizations_issues', 4),
@@ -575,6 +575,7 @@ API.Plugins.calls = {
 														});
 														API.Plugins.organizations.Events.issues(dataset,layout);
 													}
+												}
 												if(API.Helper.isSet(record,['output','services'])){
 													for(var [id, service] of Object.entries(record.output.services)){
 														API.Helper.set(dataset,['details','services','dom',id],record.output.services[id]);
@@ -707,7 +708,7 @@ API.Plugins.calls = {
 											API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
 											dataset.relations.issues[id].created = API.Helper.toString(new Date());
 											layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
-											if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){}
+											if(layout.details.find('td[data-plugin="organizations"][data-key="issues"]').find('button[data-action="link"]').length <= 0){
 												layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
 													API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
 														remove:API.Auth.validate('custom', 'organizations_issues', 4),
