@@ -348,6 +348,7 @@ API.Plugins.calls = {
 												API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 											});
 										});
+										API.Plugins.organizations.Events.calls(dataset,layout);
 									}
 								}
 								// Update Call Window
@@ -710,6 +711,7 @@ API.Plugins.calls = {
 												API.CRUD.read.show({ key:{id:item.attr('data-id')}, title:item.attr('data-phone'), href:"?p=calls&v=details&id="+item.attr('data-id'), modal:true });
 											});
 										});
+										API.Plugins.organizations.Events.calls(dataset,layout);
 									}
 									for(var [id, issue] of Object.entries(call.issues)){
 										if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
