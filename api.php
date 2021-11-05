@@ -89,7 +89,7 @@ class callsAPI extends CRUDAPI {
 				$return['output']['raw'] = $call;
 				foreach($data['issues'] as $id => $status){
 					$return['output']['issues'][$id] = $this->Auth->read('issues',$id)->all()[0];
-					$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
+					$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','issues',$call['status'])->fetchAll()->all()[0];
 					$this->createRelationship([
 						'relationship_1' => 'issues',
 						'link_to_1' => $id,
