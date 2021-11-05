@@ -160,6 +160,7 @@ class callsAPI extends CRUDAPI {
 					'status' => 1,
 					'date' => $data['date'],
 					'time' => $data['time'],
+					'contact' => $data['contact'],
 					'assigned_to' => $data['assigned_to'],
 				]); }
 				// Return
