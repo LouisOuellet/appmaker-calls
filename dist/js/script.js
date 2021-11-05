@@ -172,6 +172,48 @@ API.Plugins.calls = {
 									API.Plugins.calls.Events.users(data,layout);
 								});
 							}
+							// Created
+							options.field = "created";
+							options.td = '<td><time class="timeago" datetime="'+data.this.raw.created.replace(/ /g, "T")+'" title="'+data.this.raw.created+'">'+data.this.raw.created+'</time></td>';
+							API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){ tr.find('time').timeago(); });
+							// Subscription
+							var icon = "fas fa-bell";
+							if(API.Helper.isSet(data,['relations','users',API.Contents.Auth.User.id])){ var icon = "fas fa-bell-slash"; }
+							API.GUI.Layouts.details.button(data,layout,{icon:icon},function(data,layout,button){
+								button.off().click(function(){
+									if(button.find('i').hasClass( "fa-bell" )){
+										button.find('i').removeClass("fa-bell").addClass("fa-bell-slash");
+										API.request("calls",'subscribe',{data:{id:data.this.raw.id}},function(answer){
+											var subscription = JSON.parse(answer);
+											if(subscription.success != undefined){
+												var sub = {};
+												for(var [key, value] of Object.entries(API.Contents.Auth.User)){ sub[key] = value; }
+												sub.created = subscription.output.relationship.created;
+												sub.name = '';
+												if((sub.first_name != '')&&(sub.first_name != null)){ if(sub.name != ''){sub.name += ' ';} sub.name += sub.first_name; }
+												if((sub.middle_name != '')&&(sub.middle_name != null)){ if(sub.name != ''){sub.name += ' ';} sub.name += sub.middle_name; }
+												if((sub.last_name != '')&&(sub.last_name != null)){ if(sub.name != ''){sub.name += ' ';} sub.name += sub.last_name; }
+												API.Builder.Timeline.add.subscription(layout.timeline,sub,'bell','lightblue',function(item){
+													if((API.Auth.validate('plugin','users',1))&&(API.Auth.validate('view','details',1,'users'))){
+														item.find('i').first().addClass('pointer');
+														item.find('i').first().off().click(function(){
+															API.CRUD.read.show({ key:'username',keys:data.relations.users[item.attr('data-id')], href:"?p=users&v=details&id="+data.relations.users[item.attr('data-id')].username, modal:true });
+														});
+													}
+												});
+											}
+										});
+									} else {
+										button.find('i').removeClass("fa-bell-slash").addClass("fa-bell");
+										API.request(url.searchParams.get("p"),'unsubscribe',{data:{id:dataset.output.this.raw.id}},function(answer){
+											var subscription = JSON.parse(answer);
+											if(subscription.success != undefined){
+												layout.timeline.find('[data-type="bell"][data-id="'+API.Contents.Auth.User.id+'"]').remove();
+											}
+										});
+									}
+								});
+							});
 							// // Business Number
 							// if(API.Auth.validate('custom', 'calls_business_num', 1)){
 							// 	options.field = "business_num";
