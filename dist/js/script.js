@@ -13,9 +13,8 @@ API.Plugins.calls = {
 				API.request('calls','getActive',{report:true,toast:false},function(result){
 					var dataset = JSON.parse(result);
 					if(dataset.success != undefined){
-						console.log(dataset);
-						for(var [key, call] of Object.entries(dataset.output.calls.raw)){
-							API.Plugins.calls.GUI.widget(dataset.output.calls[call.organization]['output'],call);
+						for(var [id, call] of Object.entries(dataset.output.calls.raw)){
+							API.Plugins.calls.GUI.widget(dataset.output.organizations[call.organization]['output'],call);
 						}
 					}
 				});
