@@ -115,7 +115,7 @@ class callsAPI extends CRUDAPI {
 							'relationship_3' => 'statuses',
 							'link_to_3' => $status['id'],
 						]);
-						if($return['output']['issues'][$id]['status'] >= 4){
+						if($return['output']['issues'][$id]['status'] >= 4 && $return['output']['issues'][$id]['status'] <= 7){
 							$services = $this->Auth->query('SELECT * FROM `relationships` WHERE (`relationship_1` = ? AND `link_to_1` = ? AND `relationship_2` = ?) || (`relationship_2` = ? AND `link_to_2` = ? AND `relationship_1` = ?)','issues',$id,'services','issues',$id,'services');
 							if($services->numRows() > 0){
 								$services = $services->fetchAll()->all();
