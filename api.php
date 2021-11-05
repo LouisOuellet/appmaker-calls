@@ -86,10 +86,12 @@ class callsAPI extends CRUDAPI {
 				$this->Auth->update('calls',$call,$call['id']);
 				$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','calls',$call['status'])->fetchAll()->all()[0];
 				$this->createRelationship([
-					'relationship_1' => 'calls',
-					'link_to_1' => $call['id'],
-					'relationship_2' => 'statuses',
-					'link_to_2' => $status['id'],
+					'relationship_1' => 'organizations',
+					'link_to_1' => $call['organization'],
+					'relationship_2' => 'calls',
+					'link_to_2' => $call['id'],
+					'relationship_3' => 'statuses',
+					'link_to_3' => $status['id'],
 				]);
 				$return['success'] = $this->Language->Field["Record successfully updated"];
 				$return['output']['dom'] = $this->convertToDOM($call);
