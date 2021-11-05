@@ -117,14 +117,61 @@ API.Plugins.calls = {
 								API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
 							}
 							// Schedule
-							options.field = "schedule";
-							options.td = '';
-							options.td += '<td data-plugin="organizations" data-key="'+options.field+'">';
-								options.td += '<span class="badge bg-primary">';
-									options.td += '<i class="fas fa-calendar-day mr-1"></i>'+data.this.dom.date+API.Contents.Language[' at ']+data.this.dom.time;
-								options.td += '</span>';
-							options.td += '</td>';
-							API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
+							if(API.Auth.validate('custom', 'calls_schedule', 1)){
+								options.field = "schedule";
+								options.td = '';
+								options.td += '<td data-plugin="calls" data-key="'+options.field+'">';
+									options.td += '<span class="badge bg-primary">';
+										options.td += '<i class="fas fa-calendar-day mr-1"></i>'+data.this.dom.date+API.Contents.Language[' at ']+data.this.dom.time;
+									options.td += '</span>';
+								options.td += '</td>';
+								API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
+							}
+							// Phone
+							if(API.Auth.validate('custom', 'calls_phone', 1)){
+								options.field = "phone";
+								options.td = '';
+								options.td += '<td data-plugin="calls" data-key="'+options.field+'">';
+									options.td += '<span class="badge bg-success">';
+										options.td += '<i class="fas fa-phone mr-1"></i>'+data.this.dom.phone;
+									options.td += '</span>';
+								options.td += '</td>';
+								API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){});
+							}
+							// Users
+							if(API.Helper.isSet(API.Plugins,['users']) && API.Auth.validate('custom', 'calls_users', 1)){
+								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="users">'+API.Contents.Language['Users']+'</button>');
+								options.field = "assigned_to";
+								options.td = '<td data-plugin="calls" data-key="'+options.field+'"></td>';
+								API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){
+									var td = tr.find('td[data-plugin="calls"][data-key="assigned_to"]');
+									if(API.Helper.isSet(data.details,['users'])){
+										if(data.this.raw.assigned_to == null){ data.this.raw.assigned_to = ''; }
+										for(var [subKey, subDetails] of Object.entries(API.Helper.trim(data.this.raw.assigned_to,';').split(';'))){
+											if(subDetails != ''){
+												var user = data.details.users.dom[subDetails];
+												td.append(
+													API.Plugins.organizations.GUI.buttons.details(user,{
+														remove:API.Auth.validate('custom', 'calls_users', 4),
+														key: "username",
+														icon:{
+															details:"fas fa-user",
+															remove:"fas fa-user-minus",
+														},
+														action:{
+															remove:"unassign",
+														},
+													})
+												);
+											}
+										}
+									}
+									if(API.Auth.validate('custom', 'calls_users', 2)){
+										td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="assign"><i class="fas fa-user-plus"></i></button>');
+									}
+									API.Plugins.calls.Events.users(data,layout);
+								});
+							}
 							// // Business Number
 							// if(API.Auth.validate('custom', 'calls_business_num', 1)){
 							// 	options.field = "business_num";
@@ -208,7 +255,7 @@ API.Plugins.calls = {
 							// 		if(API.Auth.validate('custom', 'calls_organizations', 2)){
 							// 			td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="link"><i class="fas fa-link"></i></button>');
 							// 		}
-							// 		API.Plugins.organizations.Events.subsidiaries(data,layout);
+							// 		API.Plugins.calls.Events.subsidiaries(data,layout);
 							// 	});
 							// }
 							// // Services
@@ -226,7 +273,7 @@ API.Plugins.calls = {
 							// 		if(API.Auth.validate('custom', 'calls_services', 2)){
 							// 			td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="link"><i class="fas fa-link"></i></button>');
 							// 		}
-							// 		API.Plugins.organizations.Events.services(data,layout);
+							// 		API.Plugins.calls.Events.services(data,layout);
 							// 	});
 							// }
 							// // Issues
@@ -261,7 +308,7 @@ API.Plugins.calls = {
 							// 		if(API.Auth.validate('custom', 'calls_issues', 2)){
 							// 			td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="link"><i class="fas fa-link"></i></button>');
 							// 		}
-							// 		API.Plugins.organizations.Events.issues(data,layout);
+							// 		API.Plugins.calls.Events.issues(data,layout);
 							// 	});
 							// }
 							// // Tags
@@ -292,7 +339,7 @@ API.Plugins.calls = {
 							// 		if(API.Auth.validate('custom', 'calls_tags', 2)){
 							// 			td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="tag"><i class="fas fa-plus"></i></button>');
 							// 		}
-							// 		API.Plugins.organizations.Events.tags(data,layout);
+							// 		API.Plugins.calls.Events.tags(data,layout);
 							// 	});
 							// }
 							// // Notes
@@ -328,7 +375,7 @@ API.Plugins.calls = {
 							// 			content.append(html);
 							// 		}
 							// 	});
-							// 	API.Plugins.organizations.Events.notes(data,layout);
+							// 	API.Plugins.calls.Events.notes(data,layout);
 							// }
 							// // Contacts
 							// if(API.Helper.isSet(API.Plugins,['contacts']) && API.Auth.validate('custom', 'calls_contacts', 1)){
@@ -375,7 +422,7 @@ API.Plugins.calls = {
 							// 			}
 							// 		}
 							// 	});
-							// 	API.Plugins.organizations.Events.contacts(data,layout);
+							// 	API.Plugins.calls.Events.contacts(data,layout);
 							// }
 							// // Calls
 							// if(API.Helper.isSet(API.Plugins,['calls']) && API.Auth.validate('custom', 'calls_calls', 1)){
@@ -440,7 +487,7 @@ API.Plugins.calls = {
 							// 				if(relation.status > 2){ API.Plugins.organizations.GUI.call(data,layout,relation); }
 							// 			}
 							// 		}
-							// 		API.Plugins.organizations.Events.calls(data,layout);
+							// 		API.Plugins.calls.Events.calls(data,layout);
 							// 	});
 							// }
 							// // Callbacks
@@ -486,41 +533,7 @@ API.Plugins.calls = {
 							// 				if(relation.status <= 2){ API.Plugins.organizations.GUI.call(data,layout,relation); }
 							// 			}
 							// 		}
-							// 		API.Plugins.organizations.Events.callbacks(data,layout);
-							// 	});
-							// }
-							// // Users
-							// if(API.Helper.isSet(API.Plugins,['users']) && API.Auth.validate('custom', 'calls_users', 1)){
-							// 	layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="users">'+API.Contents.Language['Users']+'</button>');
-							// 	options.field = "assigned_to";
-							// 	options.td = '<td data-plugin="calls" data-key="'+options.field+'"></td>';
-							// 	API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){
-							// 		var td = tr.find('td[data-plugin="calls"][data-key="assigned_to"]');
-							// 		if(API.Helper.isSet(data.details,['users'])){
-							// 			if(data.this.raw.assigned_to == null){ data.this.raw.assigned_to = ''; }
-							// 			for(var [subKey, subDetails] of Object.entries(API.Helper.trim(data.this.raw.assigned_to,';').split(';'))){
-							// 				if(subDetails != ''){
-							// 					var user = data.details.users.dom[subDetails];
-							// 					td.append(
-							// 						API.Plugins.organizations.GUI.buttons.details(user,{
-							// 							remove:API.Auth.validate('custom', 'calls_users', 4),
-							// 							key: "username",
-							// 							icon:{
-							// 								details:"fas fa-user",
-							// 								remove:"fas fa-user-minus",
-							// 							},
-							// 							action:{
-							// 								remove:"unassign",
-							// 							},
-							// 						})
-							// 					);
-							// 				}
-							// 			}
-							// 		}
-							// 		if(API.Auth.validate('custom', 'calls_users', 2)){
-							// 			td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="assign"><i class="fas fa-user-plus"></i></button>');
-							// 		}
-							// 		API.Plugins.organizations.Events.users(data,layout);
+							// 		API.Plugins.calls.Events.callbacks(data,layout);
 							// 	});
 							// }
 							// // Settings
@@ -530,7 +543,7 @@ API.Plugins.calls = {
 							// 		layout.tabs.settings = tab;
 							// 		html = '';
 							// 		content.append(html);
-							// 		// API.Plugins.organizations.Events.settings(data,layout);
+							// 		// API.Plugins.calls.Events.settings(data,layout);
 							// 	});
 							// }
 							// // Created
@@ -776,6 +789,99 @@ API.Plugins.calls = {
 		},
 	},
 	Events:{
+		users:function(dataset,layout,options = {},callback = null){
+			if(options instanceof Function){ callback = options; options = {}; }
+			var defaults = {field: "name"};
+			if(API.Helper.isSet(options,['field'])){ defaults.field = options.field; }
+			var td = layout.details.find('td[data-plugin="calls"][data-key="assigned_to"]');
+			td.find('button').off().click(function(){
+				var button = $(this);
+				if(button.attr('data-action') != "assign"){
+					if(API.Helper.isSet(API.Contents,['data','raw','users',button.attr('data-id')])){
+						var user = {raw:API.Contents.data.raw.users[button.attr('data-id')],dom:{}};
+						user.dom = API.Contents.data.dom.users[user.raw.username];
+					} else {
+						var user = {
+							dom:dataset.details.users.dom[button.attr('data-id')],
+							raw:dataset.details.users.raw[button.attr('data-id')],
+						};
+					}
+				}
+				switch(button.attr('data-action')){
+					case"details":
+						API.CRUD.read.show({ key:'username',keys:user.dom, href:"?p=users&v=details&id="+user.raw.username, modal:true });
+						break;
+					case"unassign":
+						API.request('organizations','unassign',{data:{id:dataset.this.raw.id,user:button.attr('data-id')}},function(result){
+							var sub_dataset = JSON.parse(result);
+							if(sub_dataset.success != undefined){
+								td.find('.btn-group[data-id="'+sub_dataset.output.user+'"]').remove();
+							}
+						});
+						break;
+					case"assign":
+						API.Builder.modal($('body'), {
+							title:'Assign a user',
+							icon:'user',
+							zindex:'top',
+							css:{ header: "bg-gray", body: "p-3"},
+						}, function(modal){
+							modal.on('hide.bs.modal',function(){ modal.remove(); });
+							var dialog = modal.find('.modal-dialog');
+							var header = modal.find('.modal-header');
+							var body = modal.find('.modal-body');
+							var footer = modal.find('.modal-footer');
+							header.find('button[data-control="hide"]').remove();
+							header.find('button[data-control="update"]').remove();
+							API.Builder.input(body, 'user', null, function(input){});
+							footer.append('<button class="btn btn-secondary" data-action="assign"><i class="fas fa-user-plus mr-1"></i>'+API.Contents.Language['Assign']+'</button>');
+							footer.find('button[data-action="assign"]').click(function(){
+								if((typeof body.find('select').select2('val') !== "undefined")&&(body.find('select').select2('val') != '')){
+									API.request('organizations','assign',{data:{id:dataset.this.dom.id,user:body.find('select').select2('val')}},function(result){
+										var sub_dataset = JSON.parse(result);
+										if(sub_dataset.success != undefined){
+											for(var [key, user] of Object.entries(sub_dataset.output.organization.raw.assigned_to.split(';'))){
+												if(user != '' && td.find('div.btn-group[data-id="'+user+'"]').length <= 0){
+													user = {
+														dom:sub_dataset.output.users.dom[user],
+														raw:sub_dataset.output.users.raw[user],
+													};
+													API.Helper.set(API.Contents,['data','dom','users',user.dom.username],user.dom);
+													API.Helper.set(API.Contents,['data','raw','users',user.raw.id],user.raw);
+													API.Helper.set(dataset.details,['users','dom',user.dom.id],user.dom);
+													API.Helper.set(dataset.details,['users','dom',user.raw.id],user.raw);
+													var html = API.Plugins.organizations.GUI.buttons.details(user.dom,{
+														remove:API.Auth.validate('custom', 'organizations_users', 4),
+														key: "username",
+														icon:{
+															details:"fas fa-user",
+															remove:"fas fa-user-minus",
+														},
+														action:{
+															remove:"unassign",
+														},
+													});
+													if(td.find('button[data-action="assign"]').length > 0){
+														td.find('button[data-action="assign"]').before(html);
+													} else { td.append(html); }
+												}
+											}
+											API.Plugins.organizations.Events.users(dataset,layout);
+										}
+									});
+									modal.modal('hide');
+								} else {
+									body.find('.input-group').addClass('is-invalid');
+									alert('No organization were selected!');
+								}
+							});
+							modal.modal('show');
+						});
+						break;
+				}
+			});
+			if(callback != null){ callback(dataset,layout); }
+		},
 		create:function(dataset,call,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
 			for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
@@ -997,7 +1103,7 @@ API.Plugins.calls = {
 									}
 									if(API.Helper.isSet(record.output,['new'])){
 										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
-											API.Plugins.organizations.Events.callbacks(dataset,layout);
+											API.Plugins.calls.Events.callbacks(dataset,layout);
 										});
 										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 											item.find('i').first().addClass('pointer');
@@ -1183,7 +1289,7 @@ API.Plugins.calls = {
 												}
 												if(API.Helper.isSet(record.output,['new'])){
 													API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
-														API.Plugins.organizations.Events.callbacks(dataset,layout);
+														API.Plugins.calls.Events.callbacks(dataset,layout);
 													});
 													API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 														item.find('i').first().addClass('pointer');
@@ -1235,7 +1341,7 @@ API.Plugins.calls = {
 																	});
 																}
 															});
-															API.Plugins.organizations.Events.issues(dataset,layout);
+															API.Plugins.calls.Events.issues(dataset,layout);
 														}
 													}
 												}
@@ -1270,7 +1376,7 @@ API.Plugins.calls = {
 															}
 														});
 													}
-													API.Plugins.organizations.Events.services(dataset,layout);
+													API.Plugins.calls.Events.services(dataset,layout);
 												}
 											}
 											// Update Call Window
@@ -1368,7 +1474,7 @@ API.Plugins.calls = {
 									}
 									if(API.Helper.isSet(record.output,['new'])){
 										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
-											API.Plugins.organizations.Events.callbacks(dataset,layout);
+											API.Plugins.calls.Events.callbacks(dataset,layout);
 										});
 										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
 											item.find('i').first().addClass('pointer');
@@ -1420,7 +1526,7 @@ API.Plugins.calls = {
 														});
 													}
 												});
-												API.Plugins.organizations.Events.issues(dataset,layout);
+												API.Plugins.calls.Events.issues(dataset,layout);
 											}
 										}
 									}
@@ -1455,7 +1561,7 @@ API.Plugins.calls = {
 												}
 											});
 										}
-										API.Plugins.organizations.Events.services(dataset,layout);
+										API.Plugins.calls.Events.services(dataset,layout);
 									}
 								}
 								// Update Call Window
