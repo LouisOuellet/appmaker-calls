@@ -87,50 +87,52 @@ class callsAPI extends CRUDAPI {
 				$return['success'] = $this->Language->Field["Record successfully updated"];
 				$return['output']['dom'] = $this->convertToDOM($call);
 				$return['output']['raw'] = $call;
-				foreach($data['issues'] as $id => $value){
-					$return['output']['issues'][$id] = $this->Auth->read('issues',$id)->all()[0];
-					$return['output']['issues'][$id]['status'] = $value;
-					$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','issues',$value)->fetchAll()->all()[0];
-					$this->createRelationship([
-						'relationship_1' => 'issues',
-						'link_to_1' => $id,
-						'relationship_2' => 'organizations',
-						'link_to_2' => $call['organization'],
-						'relationship_3' => 'statuses',
-						'link_to_3' => $status['id'],
-					]);
-					$this->createRelationship([
-						'relationship_1' => 'issues',
-						'link_to_1' => $id,
-						'relationship_2' => 'calls',
-						'link_to_2' => $call['id'],
-						'relationship_3' => 'statuses',
-						'link_to_3' => $status['id'],
-					]);
-					if($return['output']['issues'][$id]['status'] >= 4){
-						$services = $this->Auth->query('SELECT * FROM `relationships` WHERE (`relationship_1` = ? AND `link_to_1` = ? AND `relationship_2` = ?) || (`relationship_2` = ? AND `link_to_2` = ? AND `relationship_1` = ?)','issues',$id,'services','issues',$id,'services');
-						if($services->numRows() > 0){
-							$services = $services->fetchAll()->all();
-							foreach($services as $service){
-								$service = $this->Auth->read('services',$service['link_to_2'])->all()[0];
-								$return['output']['services'][$service['id']] = $service;
-								$this->createRelationship([
-									'relationship_1' => 'organizations',
-									'link_to_1' => $call['organization'],
-									'relationship_2' => 'services',
-									'link_to_2' => $service['id'],
-								]);
-								$this->createRelationship([
-									'relationship_1' => 'calls',
-									'link_to_1' => $call['id'],
-									'relationship_2' => 'services',
-									'link_to_2' => $service['id'],
-								]);
+				if(isset($data['issues'])){
+					foreach($data['issues'] as $id => $value){
+						$return['output']['issues'][$id] = $this->Auth->read('issues',$id)->all()[0];
+						$return['output']['issues'][$id]['status'] = $value;
+						$status = $this->Auth->query('SELECT * FROM `statuses` WHERE `relationship` = ? AND `order` = ?','issues',$value)->fetchAll()->all()[0];
+						$this->createRelationship([
+							'relationship_1' => 'issues',
+							'link_to_1' => $id,
+							'relationship_2' => 'organizations',
+							'link_to_2' => $call['organization'],
+							'relationship_3' => 'statuses',
+							'link_to_3' => $status['id'],
+						]);
+						$this->createRelationship([
+							'relationship_1' => 'issues',
+							'link_to_1' => $id,
+							'relationship_2' => 'calls',
+							'link_to_2' => $call['id'],
+							'relationship_3' => 'statuses',
+							'link_to_3' => $status['id'],
+						]);
+						if($return['output']['issues'][$id]['status'] >= 4){
+							$services = $this->Auth->query('SELECT * FROM `relationships` WHERE (`relationship_1` = ? AND `link_to_1` = ? AND `relationship_2` = ?) || (`relationship_2` = ? AND `link_to_2` = ? AND `relationship_1` = ?)','issues',$id,'services','issues',$id,'services');
+							if($services->numRows() > 0){
+								$services = $services->fetchAll()->all();
+								foreach($services as $service){
+									$service = $this->Auth->read('services',$service['link_to_2'])->all()[0];
+									$return['output']['services'][$service['id']] = $service;
+									$this->createRelationship([
+										'relationship_1' => 'organizations',
+										'link_to_1' => $call['organization'],
+										'relationship_2' => 'services',
+										'link_to_2' => $service['id'],
+									]);
+									$this->createRelationship([
+										'relationship_1' => 'calls',
+										'link_to_1' => $call['id'],
+										'relationship_2' => 'services',
+										'link_to_2' => $service['id'],
+									]);
+								}
 							}
 						}
 					}
 				}
-				if($data['note']){
+				if(isset($data['note'])){
 					$return['output']['note']['raw'] = $this->Auth->create('notes',[
 						'content' => $data['note'],
 						'by' => $this->Auth->User['id'],

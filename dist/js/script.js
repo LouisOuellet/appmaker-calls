@@ -449,9 +449,11 @@ API.Plugins.calls = {
 							],
 							height: 250,
 						});
-						for(var [id, issue] of Object.entries(dataset.relations.issues)){
-							if(issue.status <= 3){
-								API.Helper.set(call,['issues',issue.id],body.find('div[data-issue="'+issue.id+'"]').find('select').select2('val'));
+						if(API.Helper.isSet(dataset,['relations','issues'])){
+							for(var [id, issue] of Object.entries(dataset.relations.issues)){
+								if(issue.status <= 3){
+									API.Helper.set(call,['issues',issue.id],body.find('div[data-issue="'+issue.id+'"]').find('select').select2('val'));
+								}
 							}
 						}
 						var noteModal = modal;
@@ -656,9 +658,11 @@ API.Plugins.calls = {
 							],
 							height: 250,
 						});
-						for(var [id, issue] of Object.entries(dataset.relations.issues)){
-							if(issue.status <= 3){
-								API.Helper.set(call,['issues',issue.id],body.find('div[data-issue="'+issue.id+'"]').find('select').select2('val'));
+						if(API.Helper.isSet(dataset,['relations','issues'])){
+							for(var [id, issue] of Object.entries(dataset.relations.issues)){
+								if(issue.status <= 3){
+									API.Helper.set(call,['issues',issue.id],body.find('div[data-issue="'+issue.id+'"]').find('select').select2('val'));
+								}
 							}
 						}
 						API.request('calls','end',{ data:call },function(result){
