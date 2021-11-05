@@ -95,7 +95,11 @@ API.Plugins.calls = {
 								});
 							}
 							// Name
-							if(data.this.dom.contact != ''){ options.field = "contact"; } else { options.field = "organization"; }
+							if(data.this.dom.contact != ''){
+								options.field = "contact";
+								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="contacts">'+API.Contents.Language['Contacts']+'</button>');
+							} else { options.field = "organization"; }
+							layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="organizations">'+API.Contents.Language['Organizations']+'</button>');
 							if(API.Helper.isSet(options,['td'])){ delete options.td; }
 							API.GUI.Layouts.details.data(data,layout,options);
 							// Status
