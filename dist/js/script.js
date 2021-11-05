@@ -539,6 +539,10 @@ API.Plugins.calls = {
 														API.Helper.set(dataset,['relations','issues',id],record.output.issues[id]);
 														dataset.relations.issues[id].created = API.Helper.toString(new Date());
 														layout.details.find('td[data-plugin="organizations"][data-key="issues"] div[data-id="'+id+'"]').remove();
+														console.log(API.Contents.Statuses.issues);
+														console.log(record.output.issues);
+														console.log(id);
+														console.log(record.output.issues[id].status);
 														layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
 															API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
 																remove:API.Auth.validate('custom', 'organizations_issues', 4),
