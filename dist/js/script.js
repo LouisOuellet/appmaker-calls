@@ -583,12 +583,21 @@ API.Plugins.calls = {
 														API.Helper.set(dataset,['relations','services',id],record.output.services[id]);
 														dataset.relations.services[id].created = API.Helper.toString(new Date());
 														layout.details.find('td[data-plugin="organizations"][data-key="services"] div[data-id="'+id+'"]').remove();
-														layout.details.find('td[data-plugin="organizations"][data-key="services"]').append(
-															API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
-																remove:API.Auth.validate('custom', 'organizations_services', 4),
-																icon:{details:"fas fa-hand-holding-usd"}
-															})
-														);
+														if(layout.details.find('td[data-plugin="organizations"][data-key="services"]').find('button[data-action="link"]').length <= 0){
+															layout.details.find('td[data-plugin="organizations"][data-key="services"]').append(
+																API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
+																	remove:API.Auth.validate('custom', 'organizations_services', 4),
+																	icon:{details:"fas fa-hand-holding-usd"}
+																})
+															);
+														} else {
+															layout.details.find('td[data-plugin="organizations"][data-key="services"]').find('button[data-action="link"]').before(
+																API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
+																	remove:API.Auth.validate('custom', 'organizations_services', 4),
+																	icon:{details:"fas fa-hand-holding-usd"}
+																})
+															);
+														}
 														API.Builder.Timeline.add.service(layout.timeline,dataset.relations.services[id],'hand-holding-usd','success',function(item){
 															if((API.Auth.validate('plugin','services',1))&&(API.Auth.validate('view','details',1,'services'))){
 																item.find('i').first().addClass('pointer');
@@ -753,12 +762,21 @@ API.Plugins.calls = {
 											API.Helper.set(dataset,['relations','services',id],record.output.services[id]);
 											dataset.relations.services[id].created = API.Helper.toString(new Date());
 											layout.details.find('td[data-plugin="organizations"][data-key="services"] div[data-id="'+id+'"]').remove();
-											layout.details.find('td[data-plugin="organizations"][data-key="services"]').append(
-												API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
-													remove:API.Auth.validate('custom', 'organizations_services', 4),
-													icon:{details:"fas fa-hand-holding-usd"}
-												})
-											);
+											if(layout.details.find('td[data-plugin="organizations"][data-key="services"]').find('button[data-action="link"]').length <= 0){
+												layout.details.find('td[data-plugin="organizations"][data-key="services"]').append(
+													API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
+														remove:API.Auth.validate('custom', 'organizations_services', 4),
+														icon:{details:"fas fa-hand-holding-usd"}
+													})
+												);
+											} else {
+												layout.details.find('td[data-plugin="organizations"][data-key="services"]').find('button[data-action="link"]').before(
+													API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
+														remove:API.Auth.validate('custom', 'organizations_services', 4),
+														icon:{details:"fas fa-hand-holding-usd"}
+													})
+												);
+											}
 											API.Builder.Timeline.add.service(layout.timeline,dataset.relations.services[id],'hand-holding-usd','success',function(item){
 												if((API.Auth.validate('plugin','services',1))&&(API.Auth.validate('view','details',1,'services'))){
 													item.find('i').first().addClass('pointer');
