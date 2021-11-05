@@ -137,9 +137,10 @@ API.Plugins.calls = {
 								options.field = "contact";
 								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="contacts">'+API.Contents.Language['Contacts']+'</button>');
 							} else { options.field = "organization"; }
-							layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="calls">'+API.Contents.Language['Organizations']+'</button>');
 							if(API.Helper.isSet(options,['td'])){ delete options.td; }
 							API.GUI.Layouts.details.data(data,layout,options);
+							// Organizations
+							layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="organizations">'+API.Contents.Language['Organizations']+'</button>');
 							// Status
 							if(API.Helper.isSet(API.Plugins,['statuses']) && API.Auth.validate('custom', 'calls_status', 1)){
 								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="statuses">'+API.Contents.Language['Status']+'</button>');
@@ -384,7 +385,7 @@ API.Plugins.calls = {
 											case"comments":var icon = 'comment';break;
 											case"statuses":var icon = 'info';break;
 											case"users":var icon = 'bell';break;
-											case"subsidiaries":var icon = 'building';break;
+											case"organizations":var icon = 'building';break;
 											case"employees":var icon = 'id-card';break;
 											case"contacts":var icon = 'address-card';break;
 											case"calls":var icon = 'phone-square';break;
