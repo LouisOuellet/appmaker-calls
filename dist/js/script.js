@@ -406,6 +406,57 @@ API.Plugins.calls = {
 		},
 	},
 	GUI:{
+		button:function(dataset,options = {}){
+			var defaults = {
+				icon:"fas fa-building",
+				action:"details",
+				color:"primary",
+				key:"name",
+				id:"id",
+				content:"",
+			};
+			if(API.Helper.isSet(options,['icon'])){ defaults.icon = options.icon; }
+			if(API.Helper.isSet(options,['action'])){ defaults.action = options.action; }
+			if(API.Helper.isSet(options,['color'])){ defaults.color = options.color; }
+			if(API.Helper.isSet(options,['key'])){ defaults.key = options.key; }
+			if(API.Helper.isSet(options,['id'])){ defaults.id = options.id; }
+			if(API.Helper.isSet(options,['content'])){ defaults.content = options.content; }
+			else { defaults.content = dataset[defaults.key]; }
+			if(defaults.content != ''){ defaults.icon += ' mr-1'; }
+			return '<button type="button" class="btn btn-sm bg-'+defaults.color+'" data-id="'+dataset[defaults.id]+'" data-action="'+defaults.action+'"><i class="'+defaults.icon+'"></i>'+defaults.content+'</button>';
+		},
+		buttons:{
+			details:function(dataset,options = {}){
+				var defaults = {
+					icon:{details:"fas fa-building",remove:"fas fa-unlink"},
+					action:{details:"details",remove:"unlink"},
+					color:{details:"primary",remove:"danger"},
+					key:"name",
+					id:"id",
+					content:"",
+					remove:false,
+				};
+				if(API.Helper.isSet(options,['icon','details'])){ defaults.icon.details = options.icon.details; }
+				if(API.Helper.isSet(options,['icon','remove'])){ defaults.icon.remove = options.icon.remove; }
+				if(API.Helper.isSet(options,['color','details'])){ defaults.color.details = options.color.details; }
+				if(API.Helper.isSet(options,['color','remove'])){ defaults.color.remove = options.color.remove; }
+				if(API.Helper.isSet(options,['action','details'])){ defaults.action.details = options.action.details; }
+				if(API.Helper.isSet(options,['action','remove'])){ defaults.action.remove = options.action.remove; }
+				if(API.Helper.isSet(options,['key'])){ defaults.key = options.key; }
+				if(API.Helper.isSet(options,['id'])){ defaults.id = options.id; }
+				if(API.Helper.isSet(options,['remove'])){ defaults.remove = options.remove; }
+				if(API.Helper.isSet(options,['content'])){ defaults.content = options.content; }
+				else { defaults.content = dataset[defaults.key]; }
+				var html = '';
+				html += '<div class="btn-group m-1" data-id="'+dataset[defaults.id]+'">';
+					html += '<button type="button" class="btn btn-xs bg-'+defaults.color.details+'" data-id="'+dataset[defaults.id]+'" data-action="'+defaults.action.details+'"><i class="'+defaults.icon.details+' mr-1"></i>'+defaults.content+'</button>';
+					if(defaults.remove){
+						html += '<button type="button" class="btn btn-xs bg-'+defaults.color.remove+'" data-id="'+dataset[[defaults.id]]+'" data-action="'+defaults.action.remove+'"><i class="'+defaults.icon.remove+'"></i></button>';
+					}
+				html += '</div>';
+				return html;
+			},
+		},
 		toast:{
 			init:function(){
 				$('body').prepend('<div class="toasts-bottom-right fixed py-3" style="width:400px;"></div>');
