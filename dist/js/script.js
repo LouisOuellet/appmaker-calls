@@ -537,7 +537,7 @@ API.Plugins.calls = {
 														});
 													});
 												}
-												if(typeof call.issues !== 'undefined'){
+												if(typeof call.issues !== 'undefined' && API.Helper.isSet(record,['output','issues'])){
 													for(var [id, issue] of Object.entries(call.issues)){
 														if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
 															API.Helper.set(dataset,['details','issues','dom',id],record.output.issues[id]);
@@ -722,7 +722,7 @@ API.Plugins.calls = {
 											});
 										});
 									}
-									if(typeof call.issues !== 'undefined'){
+									if(typeof call.issues !== 'undefined' && API.Helper.isSet(record,['output','issues'])){
 										for(var [id, issue] of Object.entries(call.issues)){
 											if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
 												API.Helper.set(dataset,['details','issues','dom',id],record.output.issues[id]);
