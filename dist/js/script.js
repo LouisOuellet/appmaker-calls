@@ -883,7 +883,7 @@ API.Plugins.calls = {
 			for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 				layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 				layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
-				API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
+				API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
 				API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
 					item.find('i').first().addClass('pointer');
 					item.find('i').first().off().click(function(){
@@ -908,7 +908,7 @@ API.Plugins.calls = {
 					for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[record.output.raw.organization])){
 						layout.content.calls.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 						layout.content.callbacks.find('tr[data-id="'+record.output.dom.id+'"]').remove();
-						API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[record.output.raw.id]);
+						API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.raw.id]);
 						dataset.relations.calls[record.output.raw.id].created = API.Helper.toString(new Date());
 						API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.raw.id],'phone-square','olive',function(item){
 							item.find('i').first().addClass('pointer');
@@ -969,7 +969,7 @@ API.Plugins.calls = {
 								for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[record.output.raw.organization])){
 									layout.content.calls.find('tr[data-id="'+record.output.dom.id+'"]').remove();
 									layout.content.callbacks.find('tr[data-id="'+record.output.dom.id+'"]').remove();
-									API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[record.output.raw.id]);
+									API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.raw.id]);
 									dataset.relations.calls[record.output.raw.id].created = API.Helper.toString(new Date());
 									API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.raw.id],'phone-square','olive',function(item){
 										item.find('i').first().addClass('pointer');
@@ -1074,7 +1074,7 @@ API.Plugins.calls = {
 								for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 									layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 									layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
-									API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
+									API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
 									dataset.relations.calls[record.output.raw.id].created = API.Helper.toString(new Date());
 									API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
 										item.find('i').first().addClass('pointer');
@@ -1098,7 +1098,7 @@ API.Plugins.calls = {
 										}
 									}
 									if(API.Helper.isSet(record.output,['new'])){
-										API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
+										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
 											API.Plugins.calls.Events.callbacks(dataset,layout);
 										});
 										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
@@ -1260,7 +1260,7 @@ API.Plugins.calls = {
 											for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 												layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 												layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
-												API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
+												API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
 												dataset.relations.calls[record.output.raw.id].created = API.Helper.toString(new Date());
 												API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
 													item.find('i').first().addClass('pointer');
@@ -1284,7 +1284,7 @@ API.Plugins.calls = {
 													}
 												}
 												if(API.Helper.isSet(record.output,['new'])){
-													API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
+													API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
 														API.Plugins.calls.Events.callbacks(dataset,layout);
 													});
 													API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
@@ -1445,7 +1445,7 @@ API.Plugins.calls = {
 								for(var [id, layout] of Object.entries(API.Contents.layouts.organizations[dataset.this.raw.id])){
 									layout.content.calls.find('tr[data-id="'+call.id+'"]').remove();
 									layout.content.callbacks.find('tr[data-id="'+call.id+'"]').remove();
-									API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
+									API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[call.id]);
 									dataset.relations.calls[record.output.raw.id].created = API.Helper.toString(new Date());
 									API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[call.id],'phone-square','olive',function(item){
 										item.find('i').first().addClass('pointer');
@@ -1469,7 +1469,7 @@ API.Plugins.calls = {
 										}
 									}
 									if(API.Helper.isSet(record.output,['new'])){
-										API.Plugins.calls.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
+										API.Plugins.organizations.GUI.call(dataset,layout,dataset.relations.calls[record.output.new.output.dom.id],function(){
 											API.Plugins.calls.Events.callbacks(dataset,layout);
 										});
 										API.Builder.Timeline.add.call(layout.timeline,dataset.relations.calls[record.output.new.output.dom.id],'phone-square','olive',function(item){
