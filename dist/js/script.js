@@ -54,10 +54,10 @@ API.Plugins.calls = {
 			});
 		},
 		details:function(){
+			var container = $('div[data-plugin="calls"][data-id]').last();
 			var url = new URL(window.location.href);
 			var id = url.searchParams.get("id");
-			var container = $('div[data-plugin="calls"][data-id="'+id+'"]').last();
-			API.request(url.searchParams.get("p"),'get',{data:{id:id,key:'name'}},function(result){
+			API.request(url.searchParams.get("p"),'get',{data:{id:id,key:'id'}},function(result){
 				var dataset = JSON.parse(result);
 				if(dataset.success != undefined){
 					container.attr('data-id',dataset.output.this.raw.id);
