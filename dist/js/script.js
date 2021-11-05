@@ -480,6 +480,7 @@ API.Plugins.calls = {
 								if((call.date != '')&&(call.time != '')){
 									API.request('calls','end',{ data:call },function(result){
 										var record = JSON.parse(result);
+										console.log(record);
 										if(record.success != undefined){
 											// Update Browser DB
 											API.Helper.set(dataset,['details','calls','dom',record.output.dom.id],record.output.dom);

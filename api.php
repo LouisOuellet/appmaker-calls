@@ -152,7 +152,14 @@ class callsAPI extends CRUDAPI {
 						'link_to_2' => $return['output']['note']['raw']['id'],
 					]);
 				}
-				if($call['status'] == 4){ $return['output']['new'] = $this->create('calls',$call); }
+				if($call['status'] == 4){ $return['output']['new'] = $this->create('calls',[
+					'relationship' => 'organizations',
+					'link_to' => $call['organization'],
+					'status' => 1,
+					'date' => $data['date'],
+					'time' => $data['time'],
+					'assigned_to' => $data['assigned_to'],
+				]); }
 				// Return
 				return $return;
 			}
