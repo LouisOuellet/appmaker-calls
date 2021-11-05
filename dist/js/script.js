@@ -135,7 +135,6 @@ API.Plugins.calls = {
 				});
 			}
 			API.Plugins.calls.GUI.widget(dataset,call,function(toast){
-				console.log({dataset:dataset,call:call});
 				if(callback != null){ callback(dataset,call,toast); }
 			});
 		},
@@ -532,7 +531,7 @@ API.Plugins.calls = {
 														});
 													});
 												}
-												for(var [id, status] of Object.entries(call.issues)){
+												for(var [id, issue] of Object.entries(call.issues)){
 													if(API.Helper.isSet(dataset,['relations','issues',id]) && API.Helper.isSet(record,['output','issues',id])){
 														record.output.issues[id].status = status;
 														API.Helper.set(dataset,['details','issues','dom',id],record.output.issues[id]);
@@ -543,12 +542,12 @@ API.Plugins.calls = {
 														layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
 															API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
 																remove:API.Auth.validate('custom', 'organizations_issues', 4),
-																content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[dataset.details.statuses.raw[issues[record.output.issues[id].id]].name],
+																content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
 																color:{
-																	details:dataset.details.statuses.raw[issues[record.output.issues[id].id]].color
+																	details:API.Contents.Statuses.issues[record.output.issues[id].status].color
 																},
 																icon:{
-																	details:dataset.details.statuses.raw[issues[record.output.issues[id].id]].icon
+																	details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
 																},
 															})
 														);
@@ -699,12 +698,12 @@ API.Plugins.calls = {
 											layout.details.find('td[data-plugin="organizations"][data-key="issues"]').append(
 												API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
 													remove:API.Auth.validate('custom', 'organizations_issues', 4),
-													content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[dataset.details.statuses.raw[issues[record.output.issues[id].id]].name],
+													content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
 													color:{
-														details:dataset.details.statuses.raw[issues[record.output.issues[id].id]].color
+														details:API.Contents.Statuses.issues[record.output.issues[id].status].color
 													},
 													icon:{
-														details:dataset.details.statuses.raw[issues[record.output.issues[id].id]].icon
+														details:API.Contents.Statuses.issues[record.output.issues[id].status].icon
 													},
 												})
 											);
