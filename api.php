@@ -295,7 +295,6 @@ class callsAPI extends CRUDAPI {
 		if(isset($data)){
 			if(!is_array($data)){ $data = json_decode($data, true); }
 			$this->Auth->setLimit(0);
-			var_dump($data);
 			$note = parent::note($request, $data);
 			if(isset($note['success'])){
 				foreach($note['output']['relationships'] as $id => $relationships){
