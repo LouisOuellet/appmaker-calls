@@ -94,6 +94,44 @@ API.Plugins.calls = {
 									});
 								});
 							}
+							// Subscription
+							var icon = "fas fa-bell";
+							if(API.Helper.isSet(data,['relations','users',API.Contents.Auth.User.id])){ var icon = "fas fa-bell-slash"; }
+							API.GUI.Layouts.details.button(data,layout,{icon:icon},function(data,layout,button){
+								button.off().click(function(){
+									if(button.find('i').hasClass( "fa-bell" )){
+										button.find('i').removeClass("fa-bell").addClass("fa-bell-slash");
+										API.request("calls",'subscribe',{data:{id:data.this.raw.id}},function(answer){
+											var subscription = JSON.parse(answer);
+											if(subscription.success != undefined){
+												var sub = {};
+												for(var [key, value] of Object.entries(API.Contents.Auth.User)){ sub[key] = value; }
+												sub.created = subscription.output.relationship.created;
+												sub.name = '';
+												if((sub.first_name != '')&&(sub.first_name != null)){ if(sub.name != ''){sub.name += ' ';} sub.name += sub.first_name; }
+												if((sub.middle_name != '')&&(sub.middle_name != null)){ if(sub.name != ''){sub.name += ' ';} sub.name += sub.middle_name; }
+												if((sub.last_name != '')&&(sub.last_name != null)){ if(sub.name != ''){sub.name += ' ';} sub.name += sub.last_name; }
+												API.Builder.Timeline.add.subscription(layout.timeline,sub,'bell','lightblue',function(item){
+													if((API.Auth.validate('plugin','users',1))&&(API.Auth.validate('view','details',1,'users'))){
+														item.find('i').first().addClass('pointer');
+														item.find('i').first().off().click(function(){
+															API.CRUD.read.show({ key:'username',keys:data.relations.users[item.attr('data-id')], href:"?p=users&v=details&id="+data.relations.users[item.attr('data-id')].username, modal:true });
+														});
+													}
+												});
+											}
+										});
+									} else {
+										button.find('i').removeClass("fa-bell-slash").addClass("fa-bell");
+										API.request(url.searchParams.get("p"),'unsubscribe',{data:{id:dataset.output.this.raw.id}},function(answer){
+											var subscription = JSON.parse(answer);
+											if(subscription.success != undefined){
+												layout.timeline.find('[data-type="bell"][data-id="'+API.Contents.Auth.User.id+'"]').remove();
+											}
+										});
+									}
+								});
+							});
 							// Name
 							if(data.this.dom.contact != ''){
 								options.field = "contact";
@@ -172,101 +210,63 @@ API.Plugins.calls = {
 									API.Plugins.calls.Events.users(data,layout);
 								});
 							}
+							// Services
+							if(API.Helper.isSet(API.Plugins,['services']) && API.Auth.validate('custom', 'calls_services', 1)){
+								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="services">'+API.Contents.Language['Services']+'</button>');
+								options.field = "services";
+								if(API.Helper.isSet(options,['td'])){ delete options.td; }
+								API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){
+									var td = tr.find('td[data-plugin="calls"][data-key="services"]');
+									if(API.Helper.isSet(data.details,['services'])){
+										for(var [subKey, subDetails] of Object.entries(data.details.services.dom)){
+											td.append(API.Plugins.calls.GUI.buttons.details(subDetails,{remove:API.Auth.validate('custom', 'calls_services', 4),icon:{details:"fas fa-hand-holding-usd"}}));
+										}
+									}
+									if(API.Auth.validate('custom', 'calls_services', 2)){
+										td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="link"><i class="fas fa-link"></i></button>');
+									}
+									API.Plugins.calls.Events.services(data,layout);
+								});
+							}
+							// Issues
+							if(API.Helper.isSet(API.Plugins,['issues']) && API.Auth.validate('custom', 'calls_issues', 1)){
+								layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="issues">'+API.Contents.Language['Issues']+'</button>');
+								options.field = "issues";
+								if(API.Helper.isSet(options,['td'])){ delete options.td; }
+								var issues = {};
+								for(var [rid, relations] of Object.entries(data.relationships)){
+									for(var [uid, relation] of Object.entries(relations)){
+										if(relation.relationship == 'issues'){ issues[relation.link_to] = relation.statuses; }
+									}
+								}
+								API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){
+									var td = tr.find('td[data-plugin="calls"][data-key="issues"]');
+									if(API.Helper.isSet(data.details,['issues'])){
+										for(var [subKey, subDetails] of Object.entries(data.relations.issues)){
+											td.append(
+												API.Plugins.calls.GUI.buttons.details(subDetails,{
+													remove:API.Auth.validate('custom', 'calls_issues', 4),
+													content:subDetails.id+' - '+subDetails.name+' - '+API.Contents.Language[API.Contents.Statuses.issues[subDetails.status].name],
+													color:{
+														details:API.Contents.Statuses.issues[subDetails.status].color
+													},
+													icon:{
+														details:API.Contents.Statuses.issues[subDetails.status].icon
+													},
+												})
+											);
+										}
+									}
+									if(API.Auth.validate('custom', 'calls_issues', 2)){
+										td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="link"><i class="fas fa-link"></i></button>');
+									}
+									API.Plugins.calls.Events.issues(data,layout);
+								});
+							}
 							// Created
 							options.field = "created";
 							options.td = '<td><time class="timeago" datetime="'+data.this.raw.created.replace(/ /g, "T")+'" title="'+data.this.raw.created+'">'+data.this.raw.created+'</time></td>';
 							API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){ tr.find('time').timeago(); });
-							// Subscription
-							var icon = "fas fa-bell";
-							if(API.Helper.isSet(data,['relations','users',API.Contents.Auth.User.id])){ var icon = "fas fa-bell-slash"; }
-							API.GUI.Layouts.details.button(data,layout,{icon:icon},function(data,layout,button){
-								button.off().click(function(){
-									if(button.find('i').hasClass( "fa-bell" )){
-										button.find('i').removeClass("fa-bell").addClass("fa-bell-slash");
-										API.request("calls",'subscribe',{data:{id:data.this.raw.id}},function(answer){
-											var subscription = JSON.parse(answer);
-											if(subscription.success != undefined){
-												var sub = {};
-												for(var [key, value] of Object.entries(API.Contents.Auth.User)){ sub[key] = value; }
-												sub.created = subscription.output.relationship.created;
-												sub.name = '';
-												if((sub.first_name != '')&&(sub.first_name != null)){ if(sub.name != ''){sub.name += ' ';} sub.name += sub.first_name; }
-												if((sub.middle_name != '')&&(sub.middle_name != null)){ if(sub.name != ''){sub.name += ' ';} sub.name += sub.middle_name; }
-												if((sub.last_name != '')&&(sub.last_name != null)){ if(sub.name != ''){sub.name += ' ';} sub.name += sub.last_name; }
-												API.Builder.Timeline.add.subscription(layout.timeline,sub,'bell','lightblue',function(item){
-													if((API.Auth.validate('plugin','users',1))&&(API.Auth.validate('view','details',1,'users'))){
-														item.find('i').first().addClass('pointer');
-														item.find('i').first().off().click(function(){
-															API.CRUD.read.show({ key:'username',keys:data.relations.users[item.attr('data-id')], href:"?p=users&v=details&id="+data.relations.users[item.attr('data-id')].username, modal:true });
-														});
-													}
-												});
-											}
-										});
-									} else {
-										button.find('i').removeClass("fa-bell-slash").addClass("fa-bell");
-										API.request(url.searchParams.get("p"),'unsubscribe',{data:{id:dataset.output.this.raw.id}},function(answer){
-											var subscription = JSON.parse(answer);
-											if(subscription.success != undefined){
-												layout.timeline.find('[data-type="bell"][data-id="'+API.Contents.Auth.User.id+'"]').remove();
-											}
-										});
-									}
-								});
-							});
-							// // Services
-							// if(API.Helper.isSet(API.Plugins,['services']) && API.Auth.validate('custom', 'calls_services', 1)){
-							// 	layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="services">'+API.Contents.Language['Services']+'</button>');
-							// 	options.field = "services";
-							// 	if(API.Helper.isSet(options,['td'])){ delete options.td; }
-							// 	API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){
-							// 		var td = tr.find('td[data-plugin="calls"][data-key="services"]');
-							// 		if(API.Helper.isSet(data.details,['services'])){
-							// 			for(var [subKey, subDetails] of Object.entries(data.details.services.dom)){
-							// 				td.append(API.Plugins.calls.GUI.buttons.details(subDetails,{remove:API.Auth.validate('custom', 'calls_services', 4),icon:{details:"fas fa-hand-holding-usd"}}));
-							// 			}
-							// 		}
-							// 		if(API.Auth.validate('custom', 'calls_services', 2)){
-							// 			td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="link"><i class="fas fa-link"></i></button>');
-							// 		}
-							// 		API.Plugins.calls.Events.services(data,layout);
-							// 	});
-							// }
-							// // Issues
-							// if(API.Helper.isSet(API.Plugins,['issues']) && API.Auth.validate('custom', 'calls_issues', 1)){
-							// 	layout.timeline.find('.time-label').first().find('div.btn-group').append('<button class="btn btn-secondary" data-table="issues">'+API.Contents.Language['Issues']+'</button>');
-							// 	options.field = "issues";
-							// 	if(API.Helper.isSet(options,['td'])){ delete options.td; }
-							// 	var issues = {};
-							// 	for(var [rid, relations] of Object.entries(data.relationships)){
-							// 		for(var [uid, relation] of Object.entries(relations)){
-							// 			if(relation.relationship == 'issues'){ issues[relation.link_to] = relation.statuses; }
-							// 		}
-							// 	}
-							// 	API.GUI.Layouts.details.data(data,layout,options,function(data,layout,tr){
-							// 		var td = tr.find('td[data-plugin="calls"][data-key="issues"]');
-							// 		if(API.Helper.isSet(data.details,['issues'])){
-							// 			for(var [subKey, subDetails] of Object.entries(data.relations.issues)){
-							// 				td.append(
-							// 					API.Plugins.calls.GUI.buttons.details(subDetails,{
-							// 						remove:API.Auth.validate('custom', 'calls_issues', 4),
-							// 						content:subDetails.id+' - '+subDetails.name+' - '+API.Contents.Language[API.Contents.Statuses.issues[subDetails.status].name],
-							// 						color:{
-							// 							details:API.Contents.Statuses.issues[subDetails.status].color
-							// 						},
-							// 						icon:{
-							// 							details:API.Contents.Statuses.issues[subDetails.status].icon
-							// 						},
-							// 					})
-							// 				);
-							// 			}
-							// 		}
-							// 		if(API.Auth.validate('custom', 'calls_issues', 2)){
-							// 			td.append('<button type="button" class="btn btn-xs btn-success mx-1" data-action="link"><i class="fas fa-link"></i></button>');
-							// 		}
-							// 		API.Plugins.calls.Events.issues(data,layout);
-							// 	});
-							// }
 							// Notes
 							if(API.Helper.isSet(API.Plugins,['notes']) && API.Auth.validate('custom', 'calls_notes', 1)){
 								API.GUI.Layouts.details.tab(data,layout,{icon:"fas fa-sticky-note",text:API.Contents.Language["Notes"]},function(data,layout,tab,content){
@@ -309,12 +309,12 @@ API.Plugins.calls = {
 												case"statuses":
 													API.Builder.Timeline.add.status(layout.timeline,details);
 													break;
-												case"calls":
+												case"organizations":
 													API.Builder.Timeline.add.client(layout.timeline,details,'building','secondary',function(item){
-														if((API.Auth.validate('plugin','calls',1))&&(API.Auth.validate('view','details',1,'calls'))){
+														if((API.Auth.validate('plugin','organizations',1))&&(API.Auth.validate('view','details',1,'organizations'))){
 															item.find('i').first().addClass('pointer');
 															item.find('i').first().off().click(function(){
-																API.CRUD.read.show({ key:'name',keys:data.details.calls.dom[item.attr('data-id')], href:"?p=calls&v=details&id="+data.details.calls.dom[item.attr('data-id')].name, modal:true });
+																API.CRUD.read.show({ key:'name',keys:data.details.organizations.dom[item.attr('data-id')], href:"?p=organizations&v=details&id="+data.details.organizations.dom[item.attr('data-id')].name, modal:true });
 															});
 														}
 													});
@@ -586,6 +586,178 @@ API.Plugins.calls = {
 					}
 				});
 			}
+		},
+		services:function(dataset,layout,options = {},callback = null){
+			if(options instanceof Function){ callback = options; options = {}; }
+			var defaults = {field: "name"};
+			if(API.Helper.isSet(options,['field'])){ defaults.field = options.field; }
+			var td = layout.details.find('td[data-plugin="calls"][data-key="services"]');
+			td.find('button').off().click(function(){
+				var button = $(this);
+				if(button.attr('data-action') != "link"){ var service = {raw:dataset.details.services.raw[button.attr('data-id')],dom:dataset.details.services.dom[button.attr('data-id')]}; }
+				switch(button.attr('data-action')){
+					case"details":
+						API.CRUD.read.show({ key:'name',keys:service.dom, href:"?p=services&v=details&id="+service.raw.name, modal:true });
+						break;
+					case"unlink":
+						API.request('calls','unlink',{data:{id:dataset.this.raw.id,relationship:{relationship:'services',link_to:service.raw.id}}},function(result){
+							var sub_dataset = JSON.parse(result);
+							if(sub_dataset.success != undefined){
+								layout.timeline.find('[data-type="hand-holding-usd"][data-id="'+sub_dataset.output.id+'"]').remove();
+								td.find('.btn-group[data-id="'+sub_dataset.output.id+'"]').remove();
+							}
+						});
+						break;
+					case"link":
+						API.Builder.modal($('body'), {
+							title:'Link a service',
+							icon:'services',
+							zindex:'top',
+							css:{ header: "bg-gray", body: "p-3"},
+						}, function(modal){
+							modal.on('hide.bs.modal',function(){ modal.remove(); });
+							var dialog = modal.find('.modal-dialog');
+							var header = modal.find('.modal-header');
+							var body = modal.find('.modal-body');
+							var footer = modal.find('.modal-footer');
+							header.find('button[data-control="hide"]').remove();
+							header.find('button[data-control="update"]').remove();
+							API.Builder.input(body, 'service', null,{plugin:'services'}, function(input){});
+							footer.append('<button class="btn btn-secondary" data-action="link"><i class="fas fa-link mr-1"></i>'+API.Contents.Language['Link']+'</button>');
+							footer.find('button[data-action="link"]').click(function(){
+								if((typeof body.find('select').select2('val') !== "undefined")&&(body.find('select').select2('val') != '')){
+									API.request('calls','link',{data:{id:dataset.this.dom.id,relationship:{relationship:'services',link_to:body.find('select').select2('val')}}},function(result){
+										var sub_dataset = JSON.parse(result);
+										if(sub_dataset.success != undefined){
+											API.Helper.set(API.Contents,['data','dom','services',sub_dataset.output.dom.id],sub_dataset.output.dom);
+											API.Helper.set(API.Contents,['data','raw','services',sub_dataset.output.raw.id],sub_dataset.output.raw);
+											API.Helper.set(dataset.details,['services','dom',sub_dataset.output.dom.id],sub_dataset.output.dom);
+											API.Helper.set(dataset.details,['services','raw',sub_dataset.output.raw.id],sub_dataset.output.raw);
+											API.Helper.set(dataset,['relations','services',sub_dataset.output.dom.id],sub_dataset.output.dom);
+											var html = API.Plugins.calls.GUI.buttons.details(sub_dataset.output.dom,{remove:API.Auth.validate('custom', 'calls_services', 4),icon:{details:"fas fa-hand-holding-usd"}});
+											if(td.find('button[data-action="link"]').length > 0){
+												td.find('button[data-action="link"]').before(html);
+											} else { td.append(html); }
+											sub_dataset.output.dom.owner = sub_dataset.output.timeline.owner;
+											sub_dataset.output.dom.created = sub_dataset.output.timeline.created;
+											API.Builder.Timeline.add.service(layout.timeline,sub_dataset.output.dom,'hand-holding-usd','success',function(item){
+												if((API.Auth.validate('plugin','services',1))&&(API.Auth.validate('view','details',1,'services'))){
+													item.find('i').first().addClass('pointer');
+													item.find('i').first().off().click(function(){
+														API.CRUD.read.show({ key:'name',keys:sub_dataset.output.dom, href:"?p=services&v=details&id="+sub_dataset.output.dom.name, modal:true });
+													});
+												}
+											});
+											API.Plugins.calls.Events.services(dataset,layout);
+										}
+									});
+									modal.modal('hide');
+								} else {
+									body.find('.input-group').addClass('is-invalid');
+									alert('No organization were selected!');
+								}
+							});
+							modal.modal('show');
+						});
+						break;
+				}
+			});
+			if(callback != null){ callback(dataset,layout); }
+		},
+		issues:function(dataset,layout,options = {},callback = null){
+			if(options instanceof Function){ callback = options; options = {}; }
+			var defaults = {field: "name"};
+			if(API.Helper.isSet(options,['field'])){ defaults.field = options.field; }
+			var td = layout.details.find('td[data-plugin="calls"][data-key="issues"]');
+			var issues = {};
+			for(var [rid, relations] of Object.entries(dataset.relationships)){
+				for(var [uid, relation] of Object.entries(relations)){
+					if(relation.relationship == 'issues'){ issues[relation.link_to] = relation.statuses; }
+				}
+			}
+			td.find('button').off().click(function(){
+				var button = $(this);
+				if(button.attr('data-action') != "link"){ var issue = {raw:dataset.details.issues.raw[button.attr('data-id')],dom:dataset.details.issues.dom[button.attr('data-id')]}; }
+				switch(button.attr('data-action')){
+					case"details":
+						API.CRUD.read.show({ key:'name',keys:issue.dom, href:"?p=issues&v=details&id="+issue.raw.id, modal:true });
+						break;
+					case"unlink":
+						API.request('calls','unlink',{data:{id:dataset.this.raw.id,relationship:{relationship:'issues',link_to:issue.raw.id}}},function(result){
+							var sub_dataset = JSON.parse(result);
+							if(sub_dataset.success != undefined){
+								layout.timeline.find('[data-type="gavel"][data-id="'+sub_dataset.output.id+'"]').remove();
+								td.find('.btn-group[data-id="'+sub_dataset.output.id+'"]').remove();
+							}
+						});
+						break;
+					case"link":
+						API.Builder.modal($('body'), {
+							title:'Link an issue',
+							icon:'issues',
+							zindex:'top',
+							css:{ header: "bg-gray", body: "p-3"},
+						}, function(modal){
+							modal.on('hide.bs.modal',function(){ modal.remove(); });
+							var dialog = modal.find('.modal-dialog');
+							var header = modal.find('.modal-header');
+							var body = modal.find('.modal-body');
+							var footer = modal.find('.modal-footer');
+							header.find('button[data-control="hide"]').remove();
+							header.find('button[data-control="update"]').remove();
+							API.Builder.input(body, 'issue', null,{plugin:'issues'}, function(input){});
+							footer.append('<button class="btn btn-secondary" data-action="link"><i class="fas fa-link mr-1"></i>'+API.Contents.Language['Link']+'</button>');
+							footer.find('button[data-action="link"]').click(function(){
+								if((typeof body.find('select').select2('val') !== "undefined")&&(body.find('select').select2('val') != '')){
+									API.request('calls','link',{data:{id:dataset.this.dom.id,relationship:{relationship:'issues',link_to:body.find('select').select2('val')}}},function(result){
+										var sub_dataset = JSON.parse(result);
+										if(sub_dataset.success != undefined){
+											API.Helper.set(API.Contents,['data','dom','issues',sub_dataset.output.dom.id],sub_dataset.output.dom);
+											API.Helper.set(API.Contents,['data','raw','issues',sub_dataset.output.raw.id],sub_dataset.output.raw);
+											API.Helper.set(dataset.details,['issues','dom',sub_dataset.output.dom.id],sub_dataset.output.dom);
+											API.Helper.set(dataset.details,['issues','raw',sub_dataset.output.raw.id],sub_dataset.output.raw);
+											sub_dataset.output.dom.status = 1;
+											API.Helper.set(dataset,['relations','issues',sub_dataset.output.dom.id],sub_dataset.output.dom);
+											var html = API.Plugins.calls.GUI.buttons.details(sub_dataset.output.dom,{
+												remove:API.Auth.validate('custom', 'calls_issues', 4),
+												content:sub_dataset.output.dom.id+' - '+sub_dataset.output.dom.name+' - '+API.Contents.Statuses.issues['1'].name,
+												color:{
+													details:API.Contents.Statuses.issues['1'].color
+												},
+												icon:{
+													details:API.Contents.Statuses.issues['1'].icon
+												},
+											});
+											if(td.find('button[data-action="link"]').length > 0){
+												td.find('button[data-action="link"]').before(html);
+											} else { td.append(html); }
+											sub_dataset.output.dom.owner = sub_dataset.output.timeline.owner;
+											sub_dataset.output.dom.created = sub_dataset.output.timeline.created;
+											sub_dataset.output.dom.statuses = sub_dataset.output.timeline.statuses;
+											sub_dataset.output.dom.status = 1;
+											API.Builder.Timeline.add.issue(layout.timeline,sub_dataset.output.dom,'gavel','indigo',function(item){
+												if((API.Auth.validate('plugin','issues',1))&&(API.Auth.validate('view','details',1,'issues'))){
+													item.find('i').first().addClass('pointer');
+													item.find('i').first().off().click(function(){
+														API.CRUD.read.show({ key:'name',keys:sub_dataset.output.dom, href:"?p=issues&v=details&id="+sub_dataset.output.dom.id, modal:true });
+													});
+												}
+											});
+											API.Plugins.calls.Events.issues(dataset,layout);
+										}
+									});
+									modal.modal('hide');
+								} else {
+									body.find('.input-group').addClass('is-invalid');
+									alert('No organization were selected!');
+								}
+							});
+							modal.modal('show');
+						});
+						break;
+				}
+			});
+			if(callback != null){ callback(dataset,layout); }
 		},
 		users:function(dataset,layout,options = {},callback = null){
 			if(options instanceof Function){ callback = options; options = {}; }
