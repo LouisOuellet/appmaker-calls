@@ -216,7 +216,7 @@ API.Plugins.calls = {
 											if(subDetails != ''){
 												var user = data.details.users.dom[subDetails];
 												td.append(
-													API.Plugins.calls.GUI.buttons.details(user,{
+													API.Plugins.organizations.GUI.buttons.details(user,{
 														remove:API.Auth.validate('custom', 'calls_users', 4),
 														key: "username",
 														icon:{
@@ -246,7 +246,7 @@ API.Plugins.calls = {
 									var td = tr.find('td[data-plugin="calls"][data-key="services"]');
 									if(API.Helper.isSet(data.details,['services'])){
 										for(var [subKey, subDetails] of Object.entries(data.details.services.dom)){
-											td.append(API.Plugins.calls.GUI.buttons.details(subDetails,{remove:API.Auth.validate('custom', 'calls_services', 4),icon:{details:"fas fa-hand-holding-usd"}}));
+											td.append(API.Plugins.organizations.GUI.buttons.details(subDetails,{remove:API.Auth.validate('custom', 'calls_services', 4),icon:{details:"fas fa-hand-holding-usd"}}));
 										}
 									}
 									if(API.Auth.validate('custom', 'calls_services', 2)){
@@ -271,7 +271,7 @@ API.Plugins.calls = {
 									if(API.Helper.isSet(data.details,['issues'])){
 										for(var [subKey, subDetails] of Object.entries(data.relations.issues)){
 											td.append(
-												API.Plugins.calls.GUI.buttons.details(subDetails,{
+												API.Plugins.organizations.GUI.buttons.details(subDetails,{
 													remove:API.Auth.validate('custom', 'calls_issues', 4),
 													content:subDetails.id+' - '+subDetails.name+' - '+API.Contents.Language[API.Contents.Statuses.issues[subDetails.status].name],
 													color:{
@@ -660,7 +660,7 @@ API.Plugins.calls = {
 											API.Helper.set(dataset.details,['services','dom',sub_dataset.output.dom.id],sub_dataset.output.dom);
 											API.Helper.set(dataset.details,['services','raw',sub_dataset.output.raw.id],sub_dataset.output.raw);
 											API.Helper.set(dataset,['relations','services',sub_dataset.output.dom.id],sub_dataset.output.dom);
-											var html = API.Plugins.calls.GUI.buttons.details(sub_dataset.output.dom,{remove:API.Auth.validate('custom', 'calls_services', 4),icon:{details:"fas fa-hand-holding-usd"}});
+											var html = API.Plugins.organizations.GUI.buttons.details(sub_dataset.output.dom,{remove:API.Auth.validate('custom', 'calls_services', 4),icon:{details:"fas fa-hand-holding-usd"}});
 											if(td.find('button[data-action="link"]').length > 0){
 												td.find('button[data-action="link"]').before(html);
 											} else { td.append(html); }
@@ -744,7 +744,7 @@ API.Plugins.calls = {
 											API.Helper.set(dataset.details,['issues','raw',sub_dataset.output.raw.id],sub_dataset.output.raw);
 											sub_dataset.output.dom.status = 1;
 											API.Helper.set(dataset,['relations','issues',sub_dataset.output.dom.id],sub_dataset.output.dom);
-											var html = API.Plugins.calls.GUI.buttons.details(sub_dataset.output.dom,{
+											var html = API.Plugins.organizations.GUI.buttons.details(sub_dataset.output.dom,{
 												remove:API.Auth.validate('custom', 'calls_issues', 4),
 												content:sub_dataset.output.dom.id+' - '+sub_dataset.output.dom.name+' - '+API.Contents.Statuses.issues['1'].name,
 												color:{
@@ -846,7 +846,7 @@ API.Plugins.calls = {
 													API.Helper.set(API.Contents,['data','raw','users',user.raw.id],user.raw);
 													API.Helper.set(dataset.details,['users','dom',user.dom.id],user.dom);
 													API.Helper.set(dataset.details,['users','dom',user.raw.id],user.raw);
-													var html = API.Plugins.calls.GUI.buttons.details(user.dom,{
+													var html = API.Plugins.organizations.GUI.buttons.details(user.dom,{
 														remove:API.Auth.validate('custom', 'calls_users', 4),
 														key: "username",
 														icon:{
@@ -1302,7 +1302,7 @@ API.Plugins.calls = {
 															layout.details.find('td[data-plugin="calls"][data-key="issues"] div[data-id="'+id+'"]').remove();
 															if(layout.details.find('td[data-plugin="calls"][data-key="issues"]').find('button[data-action="link"]').length <= 0){
 																layout.details.find('td[data-plugin="calls"][data-key="issues"]').append(
-																	API.Plugins.calls.GUI.buttons.details(dataset.relations.issues[id],{
+																	API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
 																		remove:API.Auth.validate('custom', 'calls_issues', 4),
 																		content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
 																		color:{
@@ -1315,7 +1315,7 @@ API.Plugins.calls = {
 																);
 															} else {
 																layout.details.find('td[data-plugin="calls"][data-key="issues"]').find('button[data-action="link"]').before(
-																	API.Plugins.calls.GUI.buttons.details(dataset.relations.issues[id],{
+																	API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
 																		remove:API.Auth.validate('custom', 'calls_issues', 4),
 																		content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
 																		color:{
@@ -1348,14 +1348,14 @@ API.Plugins.calls = {
 														layout.details.find('td[data-plugin="calls"][data-key="services"] div[data-id="'+id+'"]').remove();
 														if(layout.details.find('td[data-plugin="calls"][data-key="services"]').find('button[data-action="link"]').length <= 0){
 															layout.details.find('td[data-plugin="calls"][data-key="services"]').append(
-																API.Plugins.calls.GUI.buttons.details(dataset.relations.services[id],{
+																API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
 																	remove:API.Auth.validate('custom', 'calls_services', 4),
 																	icon:{details:"fas fa-hand-holding-usd"}
 																})
 															);
 														} else {
 															layout.details.find('td[data-plugin="calls"][data-key="services"]').find('button[data-action="link"]').before(
-																API.Plugins.calls.GUI.buttons.details(dataset.relations.services[id],{
+																API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
 																	remove:API.Auth.validate('custom', 'calls_services', 4),
 																	icon:{details:"fas fa-hand-holding-usd"}
 																})
@@ -1487,7 +1487,7 @@ API.Plugins.calls = {
 												layout.details.find('td[data-plugin="calls"][data-key="issues"] div[data-id="'+id+'"]').remove();
 												if(layout.details.find('td[data-plugin="calls"][data-key="issues"]').find('button[data-action="link"]').length <= 0){
 													layout.details.find('td[data-plugin="calls"][data-key="issues"]').append(
-														API.Plugins.calls.GUI.buttons.details(dataset.relations.issues[id],{
+														API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
 															remove:API.Auth.validate('custom', 'calls_issues', 4),
 															content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
 															color:{
@@ -1500,7 +1500,7 @@ API.Plugins.calls = {
 													);
 												} else {
 													layout.details.find('td[data-plugin="calls"][data-key="issues"]').find('button[data-action="link"]').before(
-														API.Plugins.calls.GUI.buttons.details(dataset.relations.issues[id],{
+														API.Plugins.organizations.GUI.buttons.details(dataset.relations.issues[id],{
 															remove:API.Auth.validate('custom', 'calls_issues', 4),
 															content:record.output.issues[id].id+' - '+record.output.issues[id].name+' - '+API.Contents.Language[API.Contents.Statuses.issues[record.output.issues[id].status].name],
 															color:{
@@ -1533,14 +1533,14 @@ API.Plugins.calls = {
 											layout.details.find('td[data-plugin="calls"][data-key="services"] div[data-id="'+id+'"]').remove();
 											if(layout.details.find('td[data-plugin="calls"][data-key="services"]').find('button[data-action="link"]').length <= 0){
 												layout.details.find('td[data-plugin="calls"][data-key="services"]').append(
-													API.Plugins.calls.GUI.buttons.details(dataset.relations.services[id],{
+													API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
 														remove:API.Auth.validate('custom', 'calls_services', 4),
 														icon:{details:"fas fa-hand-holding-usd"}
 													})
 												);
 											} else {
 												layout.details.find('td[data-plugin="calls"][data-key="services"]').find('button[data-action="link"]').before(
-													API.Plugins.calls.GUI.buttons.details(dataset.relations.services[id],{
+													API.Plugins.organizations.GUI.buttons.details(dataset.relations.services[id],{
 														remove:API.Auth.validate('custom', 'calls_services', 4),
 														icon:{details:"fas fa-hand-holding-usd"}
 													})
