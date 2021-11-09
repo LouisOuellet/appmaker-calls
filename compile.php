@@ -44,17 +44,17 @@ class Compiler {
       $manifest = fopen(dirname(__FILE__) . '/dist/data/manifest.json', 'w');
       fwrite($manifest, json_encode($this->Manifest, JSON_PRETTY_PRINT));
       fclose($manifest);
-      if(isset($this->Connection,$this->Database,$this->Manifest['table']) && !empty($this->Manifest['table']) && !empty($this->Settings)){
-        $structure = $this->createStructure(dirname(__FILE__).'/dist/data/structure.json',$this->Manifest['table']);
+      if(isset($this->Connection,$this->Database,$this->Manifest['requirements']['table']) && !empty($this->Manifest['requirements']['table']) && !empty($this->Settings)){
+        $structure = $this->createStructure(dirname(__FILE__).'/dist/data/structure.json',$this->Manifest['requirements']['table']);
         if(!isset($structure['error'])){
           echo "The database structure file was created\n";
           if(isset($this->Manifest['requirements']['table'])){
-            $this->Manifest['table'] = array_merge($this->Manifest['table'],$this->Manifest['requirements']['table']);
+            $this->Manifest['requirements']['table'] = array_merge($this->Manifest['requirements']['table'],$this->Manifest['requirements']['table']);
           }
-          $records = $this->createRecords(dirname(__FILE__).'/dist/data/skeleton.json',["tables" => $this->Manifest['table'], "maxID" => 99999]);
+          $records = $this->createRecords(dirname(__FILE__).'/dist/data/skeleton.json',["tables" => $this->Manifest['requirements']['table'], "maxID" => 99999]);
           if(!isset($records['error'])){
             echo "The database skeleton file was created\n";
-            $records = $this->createRecords(dirname(__FILE__).'/dist/data/sample.json',["tables" => $this->Manifest['table']]);
+            $records = $this->createRecords(dirname(__FILE__).'/dist/data/sample.json',["tables" => $this->Manifest['requirements']['table']]);
             if(!isset($records['error'])){
               echo "The database sample file was created\n";
             } else {
