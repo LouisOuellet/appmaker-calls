@@ -33,7 +33,7 @@ class Compiler {
       $this->buildGitIgnore();
     }
     if(is_file(dirname(__FILE__) . '/settings.json')){ $this->Settings=json_decode(file_get_contents(dirname(__FILE__) . '/settings.json'),true); }
-    if(isset($this->Manifest['table'])){ $this->configDB(); }
+    if(isset($this->Manifest['requirements']['table'])){ $this->configDB(); }
   }
 
   public function Compile(){
