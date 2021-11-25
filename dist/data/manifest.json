@@ -8,10 +8,12 @@
             "raw": "https:\/\/raw.githubusercontent.com\/LouisOuellet\/"
         }
     },
-    "table": [
-        "calls"
-    ],
+    "requirements": {
+        "table": [
+            "calls"
+        ]
+    },
     "name": "calls",
-    "build": 264,
+    "build": 265,
     "version": "21.11-dev"
 }
